@@ -2,6 +2,7 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
@@ -33,10 +34,11 @@ public class Mapper extends Thread{
 						map.put(obj.getValue(), 1);
 					}
 					
-					if(new Date().getTime() - currentTime >= 60000) {
+					if(new Date().getTime() - currentTime >= 30000) {
 						System.out.println("-----------------------");
 						Date date = new Date(currentTime);
-					    Format format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+						SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss");
+					    format.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
 					    String day = format.format(date);
 						for(String key : map.keySet()) {
 							System.out.println(day + ", " + key + ", " + map.get(key));
