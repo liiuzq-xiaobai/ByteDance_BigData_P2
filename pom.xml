@@ -33,7 +33,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>KafkaSender</mainClass>
+							<mainClass>Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -58,9 +58,18 @@
 							<mainClass>KafkaReceiver</mainClass>
 						</configuration>
 					</execution>
-					</executions>
+					<execution>
+						<id>mapper</id>
+						<goals>
+							<goal>java</goal>
+						</goals>
+						<configuration>
+							<mainClass>Mapper</mainClass>
+						</configuration>
+					</execution>
+				</executions>
 				<configuration>
-					<mainClass>KafkaSender</mainClass>
+					<mainClass>Main</mainClass>
 				</configuration>
 			</plugin>
     </plugins>
