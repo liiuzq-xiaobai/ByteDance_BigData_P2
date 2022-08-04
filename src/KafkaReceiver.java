@@ -25,7 +25,7 @@ public class KafkaReceiver extends Thread{
 	public void run() {
 		// TODO Auto-generated method stub
 		Properties props = new Properties();
-		props.put("bootstrap.servers", "localhost:9092");
+		props.put("bootstrap.servers", "120.26.142.199:9092");
 		props.put("group.id", GROUP);
 		props.put("auto.commit.interval.ms", "1000");
 		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -38,7 +38,7 @@ public class KafkaReceiver extends Thread{
 				ConsumerRecords<String, String> records = consumer.poll(1000L);
 				for (ConsumerRecord<String, String> record:records) {
 					String obj = record.value();
-					//System.out.println("Receive message: " + obj);
+					System.out.println("Receive message: " + obj);
 					String[] parseObj = obj.split(" ");
 					ObjectWrapper dataObj = new ObjectWrapper(Integer.parseInt(parseObj[0]), parseObj[1], Long.parseLong(parseObj[2]));
 					if(dataQueue!=null) {

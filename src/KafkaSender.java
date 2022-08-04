@@ -14,7 +14,7 @@ public class KafkaSender extends Thread{
 	}
 	
 	public void run() {
-		prop.setProperty("bootstrap.servers", "localhost:9092");
+		prop.setProperty("bootstrap.servers", "120.26.142.199:9092");
 		prop.setProperty("kafka.topic.name", "test");
 		KafkaProducer<String, byte[]> producer = 
 				new KafkaProducer<String, byte[]>(this.prop, new StringSerializer(), new ByteArraySerializer());
@@ -25,7 +25,7 @@ public class KafkaSender extends Thread{
 			char letter = 'A';
 			int nextChar = rand1.nextInt(26);
 			byte[] payload = (i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime()).getBytes();
-			//System.out.println("Send message: " + i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime());
+			System.out.println("Send message: " + i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime());
 			ProducerRecord<String, byte[]> record = new ProducerRecord<String, byte[]>(prop.getProperty("kafka.topic.name"),payload);
 			producer.send(record);
 			//int timeBetween = rand2.nextInt(5)+1;
