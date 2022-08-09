@@ -1,3 +1,4 @@
+package main;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Random;
@@ -21,16 +22,17 @@ public class KafkaSender extends Thread{
 	
 		Random rand1 = new Random();
 		Random rand2 = new Random();
-		for(int i=0;i<1000;i++) {
+		for(int i=0;i<100;i++) {
 			char letter = 'A';
 			int nextChar = rand1.nextInt(26);
 			byte[] payload = (i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime()).getBytes();
-			System.out.println("Send message: " + i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime());
+			//System.out.println("Send message: " + i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime());
 			ProducerRecord<String, byte[]> record = new ProducerRecord<String, byte[]>(prop.getProperty("kafka.topic.name"),payload);
 			producer.send(record);
+			System.out.println("Send message: " + i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime());
 			//int timeBetween = rand2.nextInt(5)+1;
 			try {
-				Thread.sleep(500);
+				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

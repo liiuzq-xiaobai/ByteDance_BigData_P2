@@ -33,7 +33,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>Main</mainClass>
+							<mainClass>main.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -69,7 +69,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>Main</mainClass>
+					<mainClass>main.Main</mainClass>
 				</configuration>
 			</plugin>
     </plugins>

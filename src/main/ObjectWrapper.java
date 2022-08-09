@@ -1,11 +1,18 @@
+package main;
 
 public class ObjectWrapper {
-	private int index;
+	private String key;
 	private String value;
 	private long time;
 	
-	public ObjectWrapper(int index, String value, long time) {
-		this.index = index;
+	public ObjectWrapper(String key, String value) {
+		this.key = key;
+		this.value = value;
+		this.time = 0L;
+	}
+	
+	public ObjectWrapper(String key, String value, long time) {
+		this.key = key;
 		this.value = value;
 		this.time = time;
 	}
@@ -13,15 +20,15 @@ public class ObjectWrapper {
 	/**
 	 * @return the index
 	 */
-	public int getIndex() {
-		return index;
+	public String getKey() {
+		return key;
 	}
 
 	/**
 	 * @param index the index to set
 	 */
-	public void setIndex(int index) {
-		this.index = index;
+	public void setKey(String key) {
+		this.key = key;
 	}
 
 	/**
