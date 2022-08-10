@@ -1,18 +1,18 @@
 package main;
 import java.util.concurrent.LinkedBlockingDeque;
 
-public class MapJob extends Thread{
+public class MapOperator extends Thread{
 	
 	Job job = null;
 	int mapperId;
-	Router router = null;
+	DataStream router = null;
 	
-	public MapJob(Job job, int id) {
+	public MapOperator(Job job, int id) {
 		this.job = job;
 		this.mapperId = id;
 	}
 	
-	public void jobSetup(Router router) {
+	public void jobSetup(DataStream router) {
 		this.router = router;
 	}
 	

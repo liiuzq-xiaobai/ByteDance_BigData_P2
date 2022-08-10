@@ -10,11 +10,11 @@ public interface Job{
 	
 	//abstract public void setMapperId(int MapperId);
 	
-	abstract public void map(ObjectWrapper obj, Router output);
+	abstract public void map(ObjectWrapper obj, DataStream output);
 	
 	//abstract public void reduce(Iterator<ObjectWrapper> iterator, Router output);
 
-	abstract void reduce(String key, Iterator<String> iterator, Router output);
+	abstract void reduce(String key, Iterator<String> iterator, DataStream output);
 	
 	//abstract public void setOutput(LinkedBlockingDeque<ObjectWrapper> queue);
 	

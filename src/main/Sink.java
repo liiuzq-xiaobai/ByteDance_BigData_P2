@@ -7,9 +7,9 @@ import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Sink extends Thread{
-	Router router;
+	DataStream router;
 	
-	public Sink(Router router) {
+	public Sink(DataStream router) {
 		this.router = router;
 	}
 	
@@ -23,15 +23,16 @@ public class Sink extends Thread{
 			}
 			//for (Map.Entry<String, String> set : router.getSink().entrySet()) {
 			ConcurrentHashMap<String, String> map = router.getSink();
-				System.out.println("-----------" + this.getName() + "-----------");
+				String output = "-----------" + this.getName() + "-----------\n";
 				Date date = new Date();
 				SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss");
 			    format.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
 			    String day = format.format(date);
 				for(String key : map.keySet()) {
-					System.out.println(day + ", " + key + ", " + map.get(key));
+					output += day + ", " + key + ", " + map.get(key) + "\n";
 				}
-				System.out.println("------------------------------");
+				output += "------------------------------";
+				System.out.println(output);
 			//}
 		}
 	}

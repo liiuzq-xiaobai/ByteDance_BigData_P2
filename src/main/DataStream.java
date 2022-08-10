@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-public class Router {
+public class DataStream {
 	int mapCount;
 	int reduceCount;
 	List<BlockingQueue<ObjectWrapper>> queues = null;
@@ -17,7 +17,7 @@ public class Router {
 	ConcurrentHashMap<String, String> sink = null;
 	boolean checkFlag = false;
 	
-	public Router(int mapCount, int reduceCount) {
+	public DataStream(int mapCount, int reduceCount) {
 		this.mapCount = mapCount;
 		this.reduceCount = reduceCount;
 		queues = new ArrayList<BlockingQueue<ObjectWrapper>>();

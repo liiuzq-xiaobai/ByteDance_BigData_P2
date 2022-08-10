@@ -15,7 +15,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import main.*;
 
-public class MapReduce extends Thread implements Job{
+public class MapReduceFunctionDeclarer extends Thread implements Job{
 	//
 	
 	//BlockingQueue<ObjectWrapper> inputQueue = null;
@@ -24,7 +24,7 @@ public class MapReduce extends Thread implements Job{
 	//Router inputRouter = null;
 	
 	
-	public MapReduce() {
+	public MapReduceFunctionDeclarer() {
 		//this.mapperId = mapperId;
 	}
 	
@@ -49,7 +49,7 @@ public class MapReduce extends Thread implements Job{
 	}
 	*/
 	
-	public void map(ObjectWrapper obj, Router output){
+	public void map(ObjectWrapper obj, DataStream output){
 		output.addToMaps(obj);
 		/*
 		ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<String, Integer>();
@@ -94,7 +94,7 @@ public class MapReduce extends Thread implements Job{
 	*/
 
 	@Override
-	public void reduce(String key, Iterator<String> iterator, Router output) {
+	public void reduce(String key, Iterator<String> iterator, DataStream output) {
 		// TODO Auto-generated method stub
 		int sum = 0;
         while(iterator.hasNext()) {

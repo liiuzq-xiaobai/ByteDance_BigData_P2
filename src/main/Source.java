@@ -10,16 +10,16 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 
-public class KafkaReceiver extends Thread{
+public class Source extends Thread{
 	static final String TOPIC = "test";
 	static final String GROUP = "test_group1";
 	
 	//BlockingQueue<ObjectWrapper> dataQueue = null;
-	Router router = null;
+	DataStream router = null;
 	
 	Random rand = new Random();
 	
-	public KafkaReceiver() {
+	public Source() {
 		
 	}
 	
@@ -29,7 +29,7 @@ public class KafkaReceiver extends Thread{
 	}
 	*/
 	
-	public void setRouter(Router router) {
+	public void setRouter(DataStream router) {
 		this.router = router;
 	}
 	
@@ -68,9 +68,11 @@ public class KafkaReceiver extends Thread{
 
 	}
 	
+	/*
 	public static void main(String args[]) throws InterruptedException {
-		KafkaReceiver receiver = new KafkaReceiver();
+		Source receiver = new Source();
 		receiver.start();
 	}
+	*/
 
 }
