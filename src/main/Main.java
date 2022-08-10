@@ -33,7 +33,10 @@ public class Main {
 		//Thread.sleep(100);
 		//newJob2.start();
 		//mapper.start();
-		
+		while(true) {
+			Thread.sleep(10000);
+			sourceToMapper.addToQueues(new ObjectWrapper("--CHECKPOINT--", null));
+		}
 	}
 
 }

@@ -29,7 +29,7 @@ public class KafkaSender extends Thread{
 			//System.out.println("Send message: " + i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime());
 			ProducerRecord<String, byte[]> record = new ProducerRecord<String, byte[]>(prop.getProperty("kafka.topic.name"),payload);
 			producer.send(record);
-			System.out.println("Send message: " + i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime());
+			//System.out.println("Send message: " + i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime());
 			//int timeBetween = rand2.nextInt(5)+1;
 			try {
 				Thread.sleep(5000);

@@ -21,7 +21,13 @@ public class MapJob extends Thread{
 		while(true) {
 			if(router!=null) {
 				ObjectWrapper obj = router.getNext(mapperId);
-				job.map(obj, router);
+				if(obj.getKey().equals("--CHECKPOINT--")) {
+					System.out.println("Mapper checkpointed.");
+					router.addToAllMaps(new ObjectWrapper("--CHECKPOINT--", null));
+				}else {
+					job.map(obj, router);
+				}
+				//job.map(obj, router);
 			}
 		}
 	}

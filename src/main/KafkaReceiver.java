@@ -56,7 +56,7 @@ public class KafkaReceiver extends Thread{
 					int next = rand.nextInt(3) + 1;
 					String randInteger = Integer.toString(next);
 					ObjectWrapper dataObj = new ObjectWrapper(parseObj[1], randInteger, Long.parseLong(parseObj[2]));
-					System.out.println("Redirect message: " + parseObj[1] + " " + randInteger);
+					//System.out.println("Redirect message: " + parseObj[1] + " " + randInteger);
 					if(router!=null) {
 						router.addToQueues(dataObj);
 					}

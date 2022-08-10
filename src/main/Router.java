@@ -1,16 +1,21 @@
 package main;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class Router {
 	int mapCount;
 	int reduceCount;
 	List<BlockingQueue<ObjectWrapper>> queues = null;
-	List<ConcurrentHashMap<String, ArrayList<String>>> lists = null;
+	List<Map<String, ArrayList<String>>> lists = null;
 	ConcurrentHashMap<String, String> sink = null;
+	boolean checkFlag = false;
 	
 	public Router(int mapCount, int reduceCount) {
 		this.mapCount = mapCount;
@@ -19,9 +24,9 @@ public class Router {
 		for(int i=0;i<mapCount;i++) {
 			this.queues.add(new LinkedBlockingDeque<ObjectWrapper>());
 		}
-		lists = new ArrayList<ConcurrentHashMap<String, ArrayList<String>>>();
+		lists = new ArrayList<Map<String, ArrayList<String>>>();
 		for(int i=0;i<mapCount;i++) {
-			this.lists.add(new ConcurrentHashMap<String, ArrayList<String>>());
+			this.lists.add(Collections.synchronizedMap(new LinkedHashMap<String, ArrayList<String>>()));
 		}
 		sink = new ConcurrentHashMap<String, String>();
 	}
@@ -30,6 +35,14 @@ public class Router {
 		if(obj!=null) {
 			int index = obj.getKey().hashCode();
 			queues.get(index%mapCount).add(obj);
+		}
+	}
+	
+	public void addToAllQueues(ObjectWrapper obj) {
+		if(obj!=null) {
+			for(BlockingQueue<ObjectWrapper> queue : queues) {
+				queue.add(obj);
+			}
 		}
 	}
 	
@@ -46,7 +59,12 @@ public class Router {
 	public void addToMaps(ObjectWrapper obj) {
 		if(obj!=null) {
 			int mapIndex = obj.getKey().hashCode()%reduceCount;
-			ConcurrentHashMap<String, ArrayList<String>> map = lists.get(mapIndex);
+			Map<String, ArrayList<String>> map = lists.get(mapIndex);
+			/*
+			if(obj.getKey().equals("--CHECKPOINT--")) {
+				map.put("--CHECKPOINT--", null);
+			}
+			*/
 			if(map.containsKey(obj.getKey())) {
 				map.get(obj.getKey()).add(obj.getValue());
 			}else {
@@ -57,7 +75,18 @@ public class Router {
 		}
 	}
 	
-	public ConcurrentHashMap<String, ArrayList<String>> getMap(int index){
+	public void addToAllMaps(ObjectWrapper obj) {
+		if(obj.getKey().equals("--CHECKPOINT--")) {
+			for(Map<String, ArrayList<String>> map : lists) {
+				if(!map.containsKey("--CHECKPOINT--")) {
+					map.put("--CHECKPOINT--", null);
+				}
+				//map.put("--CHECKPOINT--", null);
+			}
+		}
+	}
+	
+	public Map<String, ArrayList<String>> getMap(int index){
 		return lists.get(index);
 	}
 	
@@ -71,5 +100,9 @@ public class Router {
 		return sink;
 	}
 	
+	public void createCheckpoint() {
+		this.checkFlag = true;
+		
+	}
 
 }

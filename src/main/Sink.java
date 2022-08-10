@@ -31,7 +31,7 @@ public class Sink extends Thread{
 				for(String key : map.keySet()) {
 					System.out.println(day + ", " + key + ", " + map.get(key));
 				}
-				System.out.println("----------------------");
+				System.out.println("------------------------------");
 			//}
 		}
 	}
