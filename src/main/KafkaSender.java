@@ -25,7 +25,7 @@ public class KafkaSender extends Thread{
 		//3.ACK应答级别
 		props.put(ProducerConfig.ACKS_CONFIG, "all");
 		//4.重试次数
-		props.put("retries", 1);
+//		props.put("retries", 1);
 		//5.批次大小 一次发送多少大小的数据
 //		props.put("batch.size", 16384);
 		//6.等待时间 1ms后发送

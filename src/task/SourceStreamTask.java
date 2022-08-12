@@ -20,8 +20,6 @@ public class SourceStreamTask extends StreamTask<String, String> {
     static final String TOPIC = "test";
     static final String GROUP = "test_group1";
 
-    //BlockingQueue<ObjectWrapper> dataQueue = null;
-    DataStream router = null;
 
     Random rand = new Random();
     /**
@@ -33,9 +31,6 @@ public class SourceStreamTask extends StreamTask<String, String> {
         super();
     }
 
-    public void setRouter(DataStream router) {
-        this.router = router;
-    }
 
 
     public void run() {
