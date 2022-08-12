@@ -13,7 +13,7 @@ public class Main {
 		DataStream sourceToMapper = new DataStream(1, 1);
 		KafkaSender sender = new KafkaSender();
 		Source receiver = new Source();
-		//receiver.setQueue(bq);
+		//output.setQueue(bq);
 		receiver.setRouter(sourceToMapper);
 		MapReduceFunctionDeclarer mapper1 = new MapReduceFunctionDeclarer();
 		MapReduceFunctionDeclarer reduce1 = new MapReduceFunctionDeclarer();
