@@ -18,21 +18,12 @@ import java.util.*;
  */
 public class SourceStreamTask extends StreamTask<String, String> {
     static final String TOPIC = "test";
-    static final String GROUP = "test_group1";
-
-
-    Random rand = new Random();
-    /**
-     public void setQueue(LinkedBlockingDeque<ObjectWrapper> sharedQueue) {
-     this.dataQueue = sharedQueue;
-     }
-     */
+    static final String GROUP = "test_group3";
     public SourceStreamTask(){
         super();
     }
 
-
-
+    @Override
     public void run() {
         String name = Thread.currentThread().getName();
         //1.创建消费者配置类
@@ -64,8 +55,8 @@ public class SourceStreamTask extends StreamTask<String, String> {
                 for (ConsumerRecord<String, String> record:records) {
                     String obj = record.value();
                     StreamRecord<String> streamRecord = new StreamRecord<>(obj);
-                    //放入下游的Buffer中
-                    output.add(streamRecord);
+                    //放入下游的Buffer中，并将数据推向下游算子的输入管道
+                    output.push(streamRecord);
                     System.out.println(name + " produce: " + obj);
                 }
             }

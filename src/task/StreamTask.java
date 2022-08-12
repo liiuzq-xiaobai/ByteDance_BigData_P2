@@ -6,6 +6,8 @@ import io.InputChannel;
 import operator.StreamOperator;
 import record.StreamRecord;
 
+import java.util.List;
+
 /**
  * @author kevin.zeng
  * @description 算子的执行实例
@@ -23,11 +25,14 @@ public class StreamTask<IN,OUT> extends Thread {
     //一个task接收一个InputChannel发送的数据
     protected InputChannel<StreamRecord<IN>> input;
 
+    //一个task可以接收多个InputChannel发送到数据
+    protected List<InputChannel<StreamRecord<IN>>> inputs;
+
     //task执行算子逻辑
     protected StreamOperator<IN,OUT> mainOperator;
 
     //task所属的外层节点
-    protected ExecutionJobVertex vertex;
+    protected ExecutionJobVertex<IN,OUT> vertex;
 
     public StreamTask(){
     }

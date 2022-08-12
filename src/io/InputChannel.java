@@ -31,15 +31,17 @@ public class InputChannel<T> {
     public T take(){
         //从提供者的buffer中读取数据放到queue中
         //获取当前buffer数据的偏移量
-        int offset = vertex.incrAndGetOffset();
-        T data = provider.take(offset);
-        if(data != null) {
-            try {
-                queue.put(data);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+//        int offset = vertex.incrAndGetOffset();
+//        T data = provider.take(offset);
+//        if(data != null) {
+//            try {
+//                queue.put(data);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+
+        //从阻塞队列中读数据
         T result = null;
         try {
             result = queue.take();
@@ -55,5 +57,13 @@ public class InputChannel<T> {
 
     public void bindExecutionVertex(ExecutionJobVertex<?,?> vertex){
         this.vertex=vertex;
+    }
+
+    public void add(T data) {
+        try {
+            queue.put(data);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

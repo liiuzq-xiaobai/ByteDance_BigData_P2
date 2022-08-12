@@ -1,6 +1,5 @@
 package task;
 
-import record.CheckPoint;
 import record.StreamRecord;
 
 import java.util.concurrent.TimeUnit;
@@ -10,9 +9,7 @@ import java.util.concurrent.TimeUnit;
  * @description
  * @create 2022-08-12
  */
-
-//用于处理诸如map、reduce等算子逻辑
-public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
+public class OneInputStateStreamTask<IN> extends StreamTask<IN,IN> {
 
     @Override
     public void run(){
@@ -20,23 +17,27 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
         while(true){
             //从InputChannel读取数据
             System.out.println(name + " read from InputChannel");
-            StreamRecord<IN> inputData = input.take();
-            //如果遇到barrier类型数据，从inputChannel获取消费偏移量
-            if(inputData instanceof CheckPoint) {
-
-            }
-            //调用处理逻辑
+            StreamRecord<IN> outputData = null;
             System.out.println(name + " processing ....");
+            //计算三次在输出结果（后面需要修改）
+//            for (int i = 0; i < 2; i++) {
+                StreamRecord<IN> inputData = input.take();
+                //调用处理逻辑
+                //如果是有状态的算子（如reduce，需要从状态中取初值，再跟输入值计算）
+                //计算一段时间再输出给下游
+                outputData = mainOperator.processElement(inputData);
+//            }
             try {
                 TimeUnit.SECONDS.sleep(5);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            StreamRecord<OUT> outputData = mainOperator.processElement(inputData);
             System.out.println(name + " process result: " + outputData);
-            //放入当前Task的缓冲池，并推向下游
-            output.push(outputData);
+            //放入当前Task的缓冲池
+            output.add(outputData);
             System.out.println(name + " write into BufferPool");
         }
     }
+
+
 }

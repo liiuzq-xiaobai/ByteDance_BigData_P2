@@ -1,13 +1,11 @@
 package main;
-import java.util.Date;
+import java.io.*;
 import java.util.Properties;
 import java.util.Random;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.ByteArraySerializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 
 public class KafkaSender extends Thread{
 		String[] words = new String[]{"apple","banana","peach","watermelon","orange"};
@@ -41,7 +39,7 @@ public class KafkaSender extends Thread{
 				new KafkaProducer<>(props);
 
 		Random rand1 = new Random();
-		for(int i=0;i<100;i++) {
+	/*	for(int i=0;i<100;i++) {
 			String[] buffer = new String[count];
 			for (int j = 0; j < count; j++) {
 				buffer[j]=words[rand1.nextInt(words.length)];
@@ -61,8 +59,25 @@ public class KafkaSender extends Thread{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		} */
+		//发送固定的几行单词，用于测试程序正确性
+		BufferedReader reader = null;
+		try {
+			 reader = new BufferedReader(new FileReader("input/words.txt"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
-		
+		String line = "";
+		try {
+			line = reader.readLine();
+			while (line != null){
+				producer.send(new ProducerRecord<>(topic,line));
+				line = reader.readLine();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		producer.close();
 	}
 
