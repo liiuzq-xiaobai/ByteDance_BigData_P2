@@ -16,6 +16,7 @@ public class StreamReduce<T> extends OneInputStreamOperator<T,T, ReduceFunction<
 
     @Override
     public StreamRecord<T> processElement(StreamRecord<T> record) {
-        userFunction.reduce();
+//        userFunction.reduce();
+        return null;
     }
 }

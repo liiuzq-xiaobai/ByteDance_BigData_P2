@@ -6,6 +6,7 @@ import io.BufferPool;
 import io.InputChannel;
 import operator.OneInputStreamOperator;
 import operator.StreamMap;
+import operator.StreamReduce;
 import record.StreamRecord;
 import task.ExecutionJobVertex;
 import task.OneInputStreamTask;
@@ -74,7 +75,7 @@ public class Test {
 
         //****连接map和reduce算子
         //创建reduce算子
-        OneInputStreamOperator<String, Map<String, Integer>, ReduceFunction<Map<String, Integer>>> reducer = new StreamMap<>(new Splitter());
+        OneInputStreamOperator<Map<String, Integer>, Map<String, Integer>, ReduceFunction<Map<String, Integer>>> reducer = new StreamReduce<>(new Reducer());
 
 
         //****开始运行
