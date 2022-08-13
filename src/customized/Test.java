@@ -1,26 +1,12 @@
 package customized;
 
-import common.KeyedState;
-import common.MapKeyedState;
-import common.ReduceValueState;
 import function.KeySelector;
 import function.MapFunction;
 import function.ReduceFunction;
-import io.BufferPool;
-import io.InputChannel;
-import main.KafkaSender;
-import operator.OneInputStreamOperator;
-import operator.StreamMap;
-import operator.StreamReduce;
-import record.StreamRecord;
 import record.Tuple2;
-import task.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author kevin.zeng
@@ -171,7 +157,7 @@ class Splitter implements MapFunction<String,Map<String,Integer>>{
     }
 }
 
-class Mappper implements MapFunction<String,Tuple2<String,Integer>>{
+class Mapper implements MapFunction<String,Tuple2<String,Integer>>{
 
     @Override
     public Tuple2<String, Integer> map(String value) {

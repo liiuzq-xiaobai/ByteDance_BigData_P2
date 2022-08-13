@@ -45,7 +45,7 @@ public class TestPartition {
         //map算子的运行节点
         ExecutionJobVertex<String,Tuple2<String,Integer>> vertex = new ExecutionJobVertex<>();
         //创建map算子，声明key选择器
-        OneInputStreamOperator<String, Tuple2<String, Integer>, MapFunction<String, Tuple2<String, Integer>>> mapper = new StreamMap<>(new Mappper());
+        OneInputStreamOperator<String, Tuple2<String, Integer>, MapFunction<String, Tuple2<String, Integer>>> mapper = new StreamMap<>(new Mapper());
         //运行节点中包含的运行实例task
         List<StreamTask<String,Tuple2<String,Integer>>> mapTaskList = new ArrayList<>();
         vertex.setTasks(mapTaskList);
@@ -95,16 +95,8 @@ public class TestPartition {
         //transformation保存并行度，有几个并行度创建几个算子，然后绑定到task
 //        OneInputStreamOperator<Map<String, Integer>, Map<String, Integer>, ReduceFunction<Map<String, Integer>>> reducer = new StreamReduce<>(new Reducer());
         List<StreamReduce<Tuple2<String,Integer>>> reducerList = new ArrayList<>();
-        //TODO 两个reduce共用一个状态后端，最后的结果其实存在状态后端中
-        /*TODO 问题：1.keyBy分区问题尚未解决（要根据String分区，这里是Map，考虑要用Tuple2<String,Integer>结构
-                    2.最后结果其实存在状态后端，如何把数据推向下游，且不产生冲突
-                    3.分区后，每个算子应该对应一个状态后端？
-        */
 //        ReduceValueState<Map<String,Integer>> reduceValueState = new ReduceValueState<>();
         for (int i = 0; i < parrellism; i++) {
-            /*TODO 当共用一个状态后端时，不能对每一个Task绑定不同的算子，否则做processElement
-                更新到ValueState时，出现写入覆盖！！！
-            */
             StreamReduce<Tuple2<String, Integer>> reducer = new StreamReduce<>(new Reducer(),keySelector);
 //            reducer.setValueState(reduceKeyState);
             //按key分区后，对每个task绑定不同的算子，每个算子独占一个状态后端
@@ -134,7 +126,7 @@ public class TestPartition {
             input.bindProviderBuffer(mapBuffer.get(i));
             //为channel绑定所属的运行节点
             input.bindExecutionVertex(vertex);
-            //TODO ***暂定map的每一个buffer都绑定这两个input管道
+            //TODO ***暂定map的每一个buffer都绑定这parrellism个input管道
             mapBuffer.get(i).bindInputChannel(reduceChannel);
             //输入管道和task绑定
             reduceTask.setInput(input);
@@ -188,7 +180,7 @@ class Splitter implements MapFunction<String,Map<String,Integer>>{
     }
 }
 
-class Mappper implements MapFunction<String,Tuple2<String,Integer>>{
+class Mapper implements MapFunction<String,Tuple2<String,Integer>>{
 
     @Override
     public Tuple2<String, Integer> map(String value) {
