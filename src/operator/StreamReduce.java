@@ -1,7 +1,6 @@
 package operator;
 
 import common.ValueState;
-import function.KeySelector;
 import function.ReduceFunction;
 import record.StreamRecord;
 
@@ -25,17 +24,23 @@ public class StreamReduce<T> extends OneInputStreamOperator<T,T, ReduceFunction<
 
     @Override
     public T processElement(StreamRecord<T> record) {
-        T currentValue = valueState.value();
+
         T value = record.getValue();
         T newValue;
-        //初始值为空，不做操作
-        if(currentValue == null){
-            newValue = value;
-        }else {
-            newValue = userFunction.reduce(currentValue, value);
+        /* TODO 共用valueState时，valueState是多个task的共享资源，操作时需要加锁
+                如果每个task独享一个valueState，则不需要加锁，但暂时采取共用的方法
+         */
+        synchronized (valueState){
+            T currentValue = valueState.value();
+            //初始值为空，不做操作
+            if(currentValue == null){
+                newValue = value;
+            }else {
+                newValue = userFunction.reduce(currentValue, value);
+            }
+            //更新状态值
+            valueState.update(newValue);
         }
-        //更新状态值
-        valueState.update(newValue);
         return newValue;
     }
 }
