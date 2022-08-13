@@ -9,26 +9,27 @@ import java.util.concurrent.TimeUnit;
  * @description
  * @create 2022-08-12
  */
-public class OneInputStateStreamTask<IN> extends StreamTask<IN,IN> {
+public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
 
     @Override
-    public void run(){
+    public void run() {
         String name = Thread.currentThread().getName();
-        while(true){
+        while (true) {
             //从InputChannel读取数据
             System.out.println(name + " read from InputChannel");
             StreamRecord<IN> outputData = null;
             System.out.println(name + " processing ....");
             //计算三次在输出结果（后面需要修改）
 //            for (int i = 0; i < 2; i++) {
-                StreamRecord<IN> inputData = input.take();
-                //调用处理逻辑
-                //如果是有状态的算子（如reduce，需要从状态中取初值，再跟输入值计算）
-                //计算一段时间再输出给下游
-                outputData = mainOperator.processElement(inputData);
+            StreamRecord<IN> inputData = input.take();
+            //调用处理逻辑
+            //如果是有状态的算子（如reduce，需要从状态中取初值，再跟输入值计算）
+            //计算一段时间再输出给下游
+            IN outputRecord = mainOperator.processElement(inputData);
+            outputData = new StreamRecord<>(outputRecord);
 //            }
             try {
-                TimeUnit.SECONDS.sleep(5);
+                TimeUnit.SECONDS.sleep(3);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

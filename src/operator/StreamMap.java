@@ -15,8 +15,8 @@ public class StreamMap<IN,OUT> extends OneInputStreamOperator<IN,OUT,MapFunction
     }
 
     @Override
-    public StreamRecord<OUT> processElement(StreamRecord<IN> record) {
+    public OUT processElement(StreamRecord<IN> record) {
         OUT value = userFunction.map(record.getValue());
-        return new StreamRecord<>(value);
+        return value;
     }
 }

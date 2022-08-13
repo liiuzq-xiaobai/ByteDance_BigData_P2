@@ -1,6 +1,10 @@
 package io;
 
 
+import function.KeySelector;
+import record.StreamElement;
+import record.StreamRecord;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -13,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @create 2022-08-12
  */
 // T为Buffer内的数据类型
-public class BufferPool<T> {
+public class BufferPool<T extends StreamElement> {
     private List<T> list;
 
     private AtomicInteger offset;
@@ -49,16 +53,30 @@ public class BufferPool<T> {
     private Random random = new Random();
     //将数据推向下游
     public void push(T data){
+        push(data,null);
+    }
+
+    //强行默认以String类型为key
+    //TODO 只为了能实现相同单词到同一个管道，后面可能要改
+    public void push(T data, KeySelector<T,String> keySelector){
         //先加入缓冲池
         add(data);
-        int channelIndex = 0;
-        //如果有分区需求，根据哈希值放入对应
-        if(isPartition){
-            int hash = data.hashCode();
-            channelIndex = hash % channels.size();
-        }else {
+        int channelIndex;
+        if(keySelector == null){
             //没有分区需求，随机放置
             channelIndex = random.nextInt(channels.size());
+        }else {
+            if(data.isRecord()){
+                StreamRecord<T> record = data.asRecord();
+                //如果是StreamRecord类型且有分区需求，根据哈希值放入对应
+                //根据keySelector获取key，根据key的哈希值放入对应管道
+                String key = keySelector.getKey(record.getValue());
+                int hash = key.hashCode();
+                channelIndex = hash % channels.size();
+            }else {
+                //其他情况
+                channelIndex = 0;
+            }
         }
         channels.get(channelIndex).add(data);
     }

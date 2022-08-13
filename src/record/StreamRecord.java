@@ -7,7 +7,7 @@ import java.util.Date;
  * @description
  * @create 2022-08-12
  */
-public class StreamRecord<T> {
+public class StreamRecord<T> extends StreamElement {
 
     private T value;
 

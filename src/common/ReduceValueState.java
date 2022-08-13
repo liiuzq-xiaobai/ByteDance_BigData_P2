@@ -1,7 +1,4 @@
 package common;
-
-import record.StreamRecord;
-
 /**
  * @author kevin.zeng
  * @description
@@ -20,5 +17,6 @@ public class ReduceValueState<IN> implements ValueState<IN> {
     @Override
     public synchronized void update(IN value) {
         this.value = value;
+        System.out.println(Thread.currentThread().getName() + " update ValueState to " + value);
     }
 }

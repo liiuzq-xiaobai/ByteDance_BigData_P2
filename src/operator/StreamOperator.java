@@ -9,5 +9,5 @@ import record.StreamRecord;
  */
 //IN为operator输入数据类型，OUT为输出数据类型
 public abstract class StreamOperator<IN,OUT> {
-    public abstract StreamRecord<OUT> processElement(StreamRecord<IN> record);
+    public abstract OUT processElement(StreamRecord<IN> record);
 }

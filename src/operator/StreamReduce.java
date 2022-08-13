@@ -1,6 +1,7 @@
 package operator;
 
 import common.ValueState;
+import function.KeySelector;
 import function.ReduceFunction;
 import record.StreamRecord;
 
@@ -13,6 +14,7 @@ public class StreamReduce<T> extends OneInputStreamOperator<T,T, ReduceFunction<
 
     ValueState<T> valueState;
 
+
     public StreamReduce(ReduceFunction<T> userFunction) {
         super(userFunction);
     }
@@ -22,7 +24,7 @@ public class StreamReduce<T> extends OneInputStreamOperator<T,T, ReduceFunction<
     }
 
     @Override
-    public StreamRecord<T> processElement(StreamRecord<T> record) {
+    public T processElement(StreamRecord<T> record) {
         T currentValue = valueState.value();
         T value = record.getValue();
         T newValue;
@@ -34,6 +36,6 @@ public class StreamReduce<T> extends OneInputStreamOperator<T,T, ReduceFunction<
         }
         //更新状态值
         valueState.update(newValue);
-        return new StreamRecord<>(newValue);
+        return newValue;
     }
 }

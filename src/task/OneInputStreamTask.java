@@ -1,5 +1,6 @@
 package task;
 
+import function.KeySelector;
 import record.CheckPoint;
 import record.StreamRecord;
 
@@ -13,6 +14,12 @@ import java.util.concurrent.TimeUnit;
 
 //用于处理诸如map、reduce等算子逻辑
 public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
+
+    public KeySelector<StreamRecord<OUT>,String> keySelector;
+
+    public void setKeySelector(KeySelector<StreamRecord<OUT>, String> keySelector) {
+        this.keySelector = keySelector;
+    }
 
     @Override
     public void run(){
@@ -28,14 +35,15 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
             //调用处理逻辑
             System.out.println(name + " processing ....");
             try {
-                TimeUnit.SECONDS.sleep(5);
+                TimeUnit.SECONDS.sleep(3);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            StreamRecord<OUT> outputData = mainOperator.processElement(inputData);
+            OUT outputRecord = mainOperator.processElement(inputData);
+            StreamRecord<OUT> outputData = new StreamRecord<>(outputRecord);
             System.out.println(name + " process result: " + outputData);
             //放入当前Task的缓冲池，并推向下游
-            output.push(outputData);
+            output.push(outputData,keySelector);
             System.out.println(name + " write into BufferPool");
         }
     }

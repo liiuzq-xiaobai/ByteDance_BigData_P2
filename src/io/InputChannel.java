@@ -1,5 +1,6 @@
 package io;
 
+import record.StreamElement;
 import task.ExecutionJobVertex;
 
 import java.util.concurrent.BlockingQueue;
@@ -10,7 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @description Task的上游输入，一个Task有一个InputChannel
  * @create 2022-08-12
  */
-public class InputChannel<T> {
+public class InputChannel<T extends StreamElement> {
     //每个InputChannel会接收一个BufferPool提供的数据
     private BufferPool<T> provider;
 

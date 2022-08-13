@@ -11,7 +11,10 @@ import operator.StreamMap;
 import operator.StreamReduce;
 import record.StreamRecord;
 import record.Tuple2;
-import task.*;
+import task.ExecutionJobVertex;
+import task.OneInputStateStreamTask;
+import task.SourceStreamTask;
+import task.StreamTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
