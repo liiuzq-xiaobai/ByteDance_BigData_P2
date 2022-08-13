@@ -56,7 +56,6 @@ public class Source extends Thread{
 
 		//消费者组
 //		props.put(ConsumerConfig.GROUP_ID_CONFIG,"bigdata1");
-		// TODO Auto-generated method stub
 		System.out.println("Receive message");
 //		props.put("group.id", GROUP);
 //		props.put("auto.commit.interval.ms", "1000");

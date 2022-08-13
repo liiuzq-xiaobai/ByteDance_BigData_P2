@@ -18,7 +18,6 @@ public class Sink extends Thread{
 			try {
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			//for (Map.Entry<String, String> set : router.getSink().entrySet()) {

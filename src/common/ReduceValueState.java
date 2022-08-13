@@ -8,8 +8,9 @@ public class ReduceValueState<IN> implements ValueState<IN> {
     //状态数据值
     IN value = null;
 
+    //TODO 这里读的时候加了锁，否则会出现读取时两个线程都读的null，写入时有一个数据会被覆盖
     @Override
-    public IN value() {
+    public synchronized IN value() {
         return value;
     }
 

@@ -8,7 +8,6 @@ import customized.MapReduceFunctionDeclarer;
 public class Main {
 
 	public static void main(String[] args) throws InterruptedException {
-		// TODO Auto-generated method stub
 		//LinkedBlockingDeque<ObjectWrapper> bq = new LinkedBlockingDeque<ObjectWrapper>();
 		DataStream sourceToMapper = new DataStream(1, 1);
 		KafkaSender sender = new KafkaSender();

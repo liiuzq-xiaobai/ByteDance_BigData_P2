@@ -50,7 +50,6 @@ public class DataStream {
 		try {
 			return queues.get(index).take();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;

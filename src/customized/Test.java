@@ -1,5 +1,6 @@
 package customized;
 
+import com.sun.xml.internal.bind.v2.TODO;
 import common.ReduceValueState;
 import function.KeySelector;
 import function.MapFunction;
@@ -28,7 +29,7 @@ public class Test {
     static int parrellism = 2;
     //相当于execute中的内容
     public static void main(String[] args) throws InterruptedException {
-        //以下为DAG图构造过程（此处只用了硬代码）
+        //TODO 以下为DAG图构造过程（此处只用了硬代码）
 
         //****连接source和map算子
         //1个source 2个map
@@ -91,9 +92,11 @@ public class Test {
                     3.分区后，每个算子应该对应一个状态后端？
         */
         ReduceValueState<Map<String,Integer>> reduceValueState = new ReduceValueState<>();
-        for (int i = 0; i < parrellism; i++) {
+        for (int i = 0; i < 1; i++) {
+            /*TODO 当共用一个状态后端时，不能对每一个Task绑定不同的算子，否则做processElement
+                更新到ValueState时，出现写入覆盖！！！
+            */
             StreamReduce<Map<String, Integer>> reducer = new StreamReduce<>(new Reducer());
-            //每个reduce算子都有一个状态后端
             reducer.setValueState(reduceValueState);
             reducerList.add(reducer);
         }
@@ -112,7 +115,8 @@ public class Test {
         for (int i = 0; i < parrellism; i++) {
             //创建task
             OneInputStateStreamTask<Map<String,Integer>> reduceTask = new OneInputStateStreamTask<>();
-            reduceTask.setMainOperator(reducerList.get(i));
+//            reduceTask.setMainOperator(reducerList.get(i));
+            reduceTask.setMainOperator(reducerList.get(0));
             //创建task的上游输入channel
             InputChannel<StreamRecord<Map<String,Integer>>> input = new InputChannel<>();
             //channel数据的提供者
@@ -133,8 +137,6 @@ public class Test {
             reduceTaskList.add(reduceTask);
         }
 
-
-
         //****开始运行
         for(StreamTask<String, Map<String, Integer>> task : mapTaskList){
             task.start();
@@ -145,6 +147,9 @@ public class Test {
         for(StreamTask<Map<String,Integer>,Map<String,Integer>> task : reduceTaskList){
             task.start();
         }
+
+        TimeUnit.SECONDS.sleep(60);
+        System.out.println(Thread.currentThread().getName() + " 【WordCount】 result: " + reduceValueState.value());
     }
 }
 
