@@ -18,7 +18,6 @@ public class StreamTask<IN,OUT> extends Thread {
     //task属于一个运行环境
     protected RunTimeEnvironment environment;
 
-
     //当前task生产的数据放到Buffer中
     protected BufferPool<StreamRecord<OUT>> output;
 

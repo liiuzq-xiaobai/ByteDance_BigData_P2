@@ -3,6 +3,8 @@ package io;
 import record.StreamElement;
 import task.ExecutionJobVertex;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -13,7 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class InputChannel<T extends StreamElement> {
     //每个InputChannel会接收一个BufferPool提供的数据
-    private BufferPool<T> provider;
+    private List<BufferPool<T>> provider;
 
     //记录消费到了BufferPool的哪个位置的数据
 //    private int offset;
@@ -27,6 +29,7 @@ public class InputChannel<T extends StreamElement> {
     //为当前InputChannel绑定数据源buffer
     public InputChannel(){
         queue = new LinkedBlockingQueue<>();
+        provider = new ArrayList<>();
     }
 
     public T take(){
@@ -52,7 +55,7 @@ public class InputChannel<T extends StreamElement> {
         return result;
     }
 
-    public void bindProviderBuffer(BufferPool<T> provider){
+    public void bindProviderBuffer(List<BufferPool<T>> provider){
         this.provider = provider;
     }
 

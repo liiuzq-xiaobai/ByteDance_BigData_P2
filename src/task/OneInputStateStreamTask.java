@@ -34,8 +34,9 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
                 e.printStackTrace();
             }
             System.out.println(name + " process result: " + outputData);
-            //放入当前Task的缓冲池
-            output.add(outputData);
+            //放入当前Task的缓冲池，推向下游
+//            output.add(outputData);
+            output.push(outputData);
             System.out.println(name + " write into BufferPool");
         }
     }
