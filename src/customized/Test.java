@@ -6,6 +6,7 @@ import function.MapFunction;
 import function.ReduceFunction;
 import io.BufferPool;
 import io.InputChannel;
+import main.KafkaSender;
 import operator.OneInputStreamOperator;
 import operator.StreamMap;
 import operator.StreamReduce;
@@ -146,6 +147,9 @@ public class Test {
         for(StreamTask<Map<String,Integer>,Map<String,Integer>> task : reduceTaskList){
             task.start();
         }
+        TimeUnit.SECONDS.sleep(2);
+        KafkaSender sender = new KafkaSender();
+        sender.start();
 
         TimeUnit.SECONDS.sleep(60);
         System.out.println(Thread.currentThread().getName() + " 【WordCount】 result: " + reduceValueState.value());
