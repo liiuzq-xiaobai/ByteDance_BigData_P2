@@ -71,7 +71,8 @@ public class BufferPool<T extends StreamElement> {
                 //根据keySelector获取key，根据key的哈希值放入对应管道
                 String key = keySelector.getKey(data);
                 int hash = key.hashCode();
-                channelIndex = hash % channels.size();
+                //保证索引为非负数
+                channelIndex = Math.abs(hash % channels.size());
                 System.out.println(Thread.currentThread().getName() + "【generate key】 " + key + " " + channelIndex);
             }else {
                 //其他情况

@@ -8,7 +8,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 public class KafkaSender extends Thread{
-		String[] words = new String[]{"apple","banana","peach","watermelon","orange"};
+		String[] words = new String[]{"apple","banana","peach","watermelon","orange","grape","lemon"};
 		String topic = "test";
 		int count = 3; //一次发送几个单词
 	public KafkaSender() {
@@ -39,26 +39,28 @@ public class KafkaSender extends Thread{
 				new KafkaProducer<>(props);
 
 		Random rand1 = new Random();
-	/*	for(int i=0;i<100;i++) {
-			String[] buffer = new String[count];
-			for (int j = 0; j < count; j++) {
-				buffer[j]=words[rand1.nextInt(words.length)];
-			}
-			String record = arrayToStr(buffer);
+		//发送10000个单词
+//		for(int i=0;i<20;i++) {
+//			String[] buffer = new String[count];
+//			for (int j = 0; j < count; j++) {
+//				buffer[j]=words[rand1.nextInt(words.length)];
+//			}
+//			String record = arrayToStr(buffer);
+//			String record = words[rand1.nextInt(words.length)];
 //			char letter = 'A';
 //			int nextChar = rand1.nextInt(26);
 //			byte[] payload = (i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime()).getBytes();
 			//System.out.println("Send message: " + i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime());
 //			ProducerRecord<String, byte[]> record = new ProducerRecord<String, byte[]>(prop.getProperty("kafka.topic.name"),payload);
-			producer.send(new ProducerRecord<>(topic,record));
+//			producer.send(new ProducerRecord<>(topic,record));
 			//System.out.println("Send message: " + i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime());
 			//int timeBetween = rand2.nextInt(5)+1;
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		} */
+//			try {
+//				Thread.sleep(5000);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
 		//发送固定的几行单词，用于测试程序正确性
 		BufferedReader reader = null;
 		try {

@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @create 2022-08-12
  */
 public class TestPartition {
-    static int parrellism = 3;
+    static int parrellism = Runtime.getRuntime().availableProcessors();
     //相当于execute中的内容
     public static void main(String[] args) throws InterruptedException {
         //TODO 以下为DAG图构造过程（此处只用了硬代码）
@@ -149,6 +149,7 @@ public class TestPartition {
         }
 
         //****开始运行
+        long start = System.currentTimeMillis();
         for(StreamTask<String, Tuple2<String, Integer>> task : mapTaskList){
             task.start();
         }
@@ -169,6 +170,8 @@ public class TestPartition {
         for (int i = 0; i < parrellism; i++) {
             System.out.println(Thread.currentThread().getName() + " 【WordCount】 result: " + reducerList.get(i).getValueState().get());
         }
+        long end = System.currentTimeMillis();
+        System.out.println("Time spend " + (end-start)/1000 + " seconds");
     }
 }
 

@@ -8,5 +8,13 @@ java
 yyds
 flink
 java
+python
+python
+c++
+c++
+golang
+rust
+sql
+sql
 end
 world
