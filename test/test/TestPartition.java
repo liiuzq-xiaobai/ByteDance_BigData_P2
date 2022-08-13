@@ -141,29 +141,30 @@ public class TestPartition {
         }
 
         //****开始运行
-        long start = System.currentTimeMillis();
+        //map算子
         for(StreamTask<String, Tuple2<String, Integer>> task : mapTaskList){
             task.start();
         }
-        TimeUnit.SECONDS.sleep(3);
+        TimeUnit.SECONDS.sleep(1);
+        //source算子
         consumer.start();
-        TimeUnit.SECONDS.sleep(3);
+        TimeUnit.SECONDS.sleep(1);
+        //reduce算子
         for(StreamTask<Tuple2<String,Integer>,Tuple2<String,Integer>> task : reduceTaskList){
             task.start();
         }
-        TimeUnit.SECONDS.sleep(2);
+        TimeUnit.SECONDS.sleep(1);
+        //kafka生产者
         KafkaSender sender = new KafkaSender();
         sender.start();
 
-        TimeUnit.SECONDS.sleep(60);
+        TimeUnit.SECONDS.sleep(90);
 //        System.out.println(Thread.currentThread().getName() + " 【WordCount】 result: " + reduceValueState.value());
 //        System.out.println(Thread.currentThread().getName() + " 【WordCount】 result: " + .value());
 
         for (int i = 0; i < parrellism; i++) {
             System.out.println(Thread.currentThread().getName() + " 【WordCount】 result: " + reducerList.get(i).getValueState().get());
         }
-        long end = System.currentTimeMillis();
-        System.out.println("Time spend " + (end-start)/1000 + " seconds");
     }
 }
 
