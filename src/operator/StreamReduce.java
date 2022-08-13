@@ -1,6 +1,7 @@
 package operator;
 
-import common.ValueState;
+import common.KeyedState;
+import function.KeySelector;
 import function.ReduceFunction;
 import record.StreamRecord;
 
@@ -9,17 +10,24 @@ import record.StreamRecord;
  * @description
  * @create 2022-08-12
  */
-public class StreamReduce<T> extends OneInputStreamOperator<T,T, ReduceFunction<T>> {
+public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction<T>> {
 
-    ValueState<T> valueState;
-
+    KeyedState<String, T> valueState;
 
     public StreamReduce(ReduceFunction<T> userFunction) {
-        super(userFunction);
+        this(userFunction, null);
     }
 
-    public void setValueState(ValueState<T> valueState) {
+    public StreamReduce(ReduceFunction<T> userFunction, KeySelector<T, String> keySelector) {
+        super(userFunction, keySelector);
+    }
+
+    public void setValueState(KeyedState<String, T> valueState) {
         this.valueState = valueState;
+    }
+
+    public KeyedState<String, T> getValueState() {
+        return valueState;
     }
 
     @Override
@@ -30,17 +38,18 @@ public class StreamReduce<T> extends OneInputStreamOperator<T,T, ReduceFunction<
         /* TODO 共用valueState时，valueState是多个task的共享资源，操作时需要加锁
                 如果每个task独享一个valueState，则不需要加锁，但暂时采取共用的方法
          */
-        synchronized (valueState){
-            T currentValue = valueState.value();
-            //初始值为空，不做操作
-            if(currentValue == null){
-                newValue = value;
-            }else {
-                newValue = userFunction.reduce(currentValue, value);
-            }
-            //更新状态值
-            valueState.update(newValue);
+//        synchronized (valueState){
+        String key = keySelector.getKey(value);
+        T currentValue = valueState.value(key);
+        //初始值为空，不做操作
+        if (currentValue == null) {
+            newValue = value;
+        } else {
+            newValue = userFunction.reduce(currentValue, value);
         }
+        //更新状态值
+        valueState.update(newValue);
+//        }
         return newValue;
     }
 }

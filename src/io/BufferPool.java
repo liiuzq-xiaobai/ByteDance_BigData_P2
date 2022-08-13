@@ -67,12 +67,12 @@ public class BufferPool<T extends StreamElement> {
             channelIndex = random.nextInt(channels.size());
         }else {
             if(data.isRecord()){
-                StreamRecord<T> record = data.asRecord();
                 //如果是StreamRecord类型且有分区需求，根据哈希值放入对应
                 //根据keySelector获取key，根据key的哈希值放入对应管道
-                String key = keySelector.getKey(record.getValue());
+                String key = keySelector.getKey(data);
                 int hash = key.hashCode();
                 channelIndex = hash % channels.size();
+                System.out.println(Thread.currentThread().getName() + "【generate key】 " + key + " " + channelIndex);
             }else {
                 //其他情况
                 channelIndex = 0;
