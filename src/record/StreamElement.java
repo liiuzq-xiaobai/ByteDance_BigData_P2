@@ -13,4 +13,12 @@ public class StreamElement {
     public final <T> StreamRecord<T> asRecord() {
         return (StreamRecord<T>) this;
     }
+
+    public final boolean isWatermark() {
+        return getClass() == Watermark.class;
+    }
+
+    public final Watermark asWatermark() {
+        return (Watermark) this;
+    }
 }
