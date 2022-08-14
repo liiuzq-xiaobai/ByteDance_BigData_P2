@@ -25,8 +25,9 @@ import java.util.concurrent.TimeUnit;
  * @create 2022-08-12
  */
 public class TestPartition {
-    static int parrellism = Runtime.getRuntime().availableProcessors();
-//    static int parrellism = 1;
+//    static int parrellism = Runtime.getRuntime().availableProcessors();
+    static int mapParrellism = 2;
+    static int reduceParrellism = 3;
     //TODO 相当于execute中的内容
     public static void main(String[] args) throws InterruptedException {
         //TODO 以下为DAG图构造过程（此处只用了硬代码）
@@ -61,14 +62,14 @@ public class TestPartition {
         sourceBuffer.bindInputChannel(mapChannel);
         //算子有几个并行度就会有几个bufferPool，输出数据类型为map
         List<BufferPool<StreamElement>> mapBuffer = new ArrayList<>();
-        for (int i = 0; i < parrellism ; i++) {
+        for (int i = 0; i < mapParrellism ; i++) {
             BufferPool<StreamElement> pool = new BufferPool<>();
             //map算子的bufferPool要启用分区，以便进行reduce计算
             pool.enablePartition();
             mapBuffer.add(pool);
         }
         //根据下游的并行度设置InputChannel，这里下游是map算子
-        for (int i = 0; i < parrellism; i++) {
+        for (int i = 0; i < mapParrellism; i++) {
             //创建task
             OneInputStreamTask<String,Tuple2<String,Integer>> mapTask = new OneInputStreamTask<>();
             mapTask.setMainOperator(mapper);
@@ -99,7 +100,7 @@ public class TestPartition {
 //        OneInputStreamOperator<Map<String, Integer>, Map<String, Integer>, ReduceFunction<Map<String, Integer>>> reducer = new StreamReduce<>(new Reducer());
         List<StreamReduce<Tuple2<String,Integer>>> reducerList = new ArrayList<>();
 //        ReduceValueState<Map<String,Integer>> reduceValueState = new ReduceValueState<>();
-        for (int i = 0; i < parrellism; i++) {
+        for (int i = 0; i < reduceParrellism; i++) {
             StreamReduce<Tuple2<String, Integer>> reducer = new StreamReduce<>(new Reducer(),keySelector);
 //            reducer.setValueState(reduceKeyState);
             //按key分区后，对每个task绑定不同的算子，每个算子独占一个状态后端
@@ -113,13 +114,17 @@ public class TestPartition {
         reduceVertex.setTasks(reduceTaskList);
         //reduce算子的channel集合
         List<InputChannel<StreamElement>> reduceChannel = new ArrayList<>();
+        for (int i = 0; i < mapParrellism; i++) {
+            //map的每一个buffer都绑定reduce算子的所有input管道，按哈希值%管道数进行shuffle
+            mapBuffer.get(i).bindInputChannel(reduceChannel);
+        }
         //
         //reduce算子的buffer集合
         List<BufferPool<StreamElement>> reduceBuffer = new ArrayList<>();
         //channel输入集合要和上游task的buffer绑定，以实现并行
 //        sourceBuffer.bindInputChannel(mapChannel);
-        //根据下游的并行度设置InputChannel，这里下游是map算子
-        for (int i = 0; i < parrellism; i++) {
+        //根据下游的并行度设置InputChannel
+        for (int i = 0; i < reduceParrellism; i++) {
             //创建task
             OneInputStateStreamTask<Tuple2<String,Integer>> reduceTask = new OneInputStateStreamTask<>();
             reduceTask.setMainOperator(reducerList.get(i));
@@ -130,8 +135,7 @@ public class TestPartition {
             input.bindProviderBuffer(mapBuffer);
             //为channel绑定所属的运行节点
             input.bindExecutionVertex(vertex);
-            //TODO ***暂定map的每一个buffer都绑定这parrellism个input管道
-            mapBuffer.get(i).bindInputChannel(reduceChannel);
+
             //输入管道和task绑定
             reduceTask.setInput(input);
             //每个task绑定一个输出池
@@ -159,7 +163,7 @@ public class TestPartition {
                 是否需要改成InputChannel 从 上游Buffer拉取数据
          */
         //为每一个上游buffer绑定输出到下游的channel
-        for (int i = 0; i < parrellism; i++) {
+        for (int i = 0; i < reduceParrellism; i++) {
             reduceBuffer.get(i).bindInputChannel(Collections.singletonList(sinkInput));
         }
 
@@ -188,7 +192,7 @@ public class TestPartition {
 //        System.out.println(Thread.currentThread().getName() + " 【WordCount】 result: " + reduceValueState.value());
 //        System.out.println(Thread.currentThread().getName() + " 【WordCount】 result: " + .value());
 
-        for (int i = 0; i < parrellism; i++) {
+        for (int i = 0; i < reduceParrellism; i++) {
             System.out.println(Thread.currentThread().getName() + " 【WordCount】 result: " + reducerList.get(i).getValueState().get());
         }
     }
