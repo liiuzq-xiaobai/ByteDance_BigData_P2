@@ -30,7 +30,7 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
                 //如果是有状态的算子（如reduce，需要从状态中取初值，再跟输入值计算）
                 //计算一段时间再输出给下游
                 IN outputRecord = mainOperator.processElement(inputRecord);
-                //和输入数据采取相同的时间
+                //和输入数据采取相同的时间（事件时间）
                 outputData = new StreamRecord<>(outputRecord,inputRecord.getTimestamp());
 //            }
                 try {
@@ -39,6 +39,8 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
                     e.printStackTrace();
                 }
                 System.out.println(name + " process result: " + outputData);
+                //指定时间窗口，获取系统时间，如果小于窗口的maxTimeStamp，就继续计算
+                //如果到了时间
                 //放入当前Task的缓冲池，推向下游
 //            output.add(outputData);
                 output.push(outputData);

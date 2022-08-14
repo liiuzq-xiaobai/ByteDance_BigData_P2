@@ -12,7 +12,6 @@ import record.StreamRecord;
  */
 public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction<T>> {
 
-    KeyedState<String, T> valueState;
 
     public StreamReduce(ReduceFunction<T> userFunction) {
         this(userFunction, null);
@@ -22,13 +21,6 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
         super(userFunction, keySelector);
     }
 
-    public void setValueState(KeyedState<String, T> valueState) {
-        this.valueState = valueState;
-    }
-
-    public KeyedState<String, T> getValueState() {
-        return valueState;
-    }
 
     @Override
     public T processElement(StreamRecord<T> record) {

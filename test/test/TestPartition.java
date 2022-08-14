@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit;
  * @create 2022-08-12
  */
 public class TestPartition {
-//    static int parrellism = Runtime.getRuntime().availableProcessors();
-    static int parrellism = 2;
+    static int parrellism = Runtime.getRuntime().availableProcessors();
+//    static int parrellism = 1;
     //TODO 相当于execute中的内容
     public static void main(String[] args) throws InterruptedException {
         //TODO 以下为DAG图构造过程（此处只用了硬代码）
