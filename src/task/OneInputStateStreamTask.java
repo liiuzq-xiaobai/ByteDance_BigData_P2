@@ -1,6 +1,8 @@
 package task;
 
+import record.StreamElement;
 import record.StreamRecord;
+import record.Watermark;
 
 import java.util.concurrent.TimeUnit;
 
@@ -21,23 +23,32 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
             System.out.println(name + " processing ....");
             //计算三次在输出结果（后面需要修改）
 //            for (int i = 0; i < 2; i++) {
-            StreamRecord<IN> inputData = input.take();
-            //调用处理逻辑
-            //如果是有状态的算子（如reduce，需要从状态中取初值，再跟输入值计算）
-            //计算一段时间再输出给下游
-            IN outputRecord = mainOperator.processElement(inputData);
-            outputData = new StreamRecord<>(outputRecord);
+            StreamElement inputElement = input.take();
+            if(inputElement.isRecord()){
+                StreamRecord<IN> inputRecord = inputElement.asRecord();
+                //调用处理逻辑
+                //如果是有状态的算子（如reduce，需要从状态中取初值，再跟输入值计算）
+                //计算一段时间再输出给下游
+                IN outputRecord = mainOperator.processElement(inputRecord);
+                //和输入数据采取相同的时间
+                outputData = new StreamRecord<>(outputRecord,inputRecord.getTimestamp());
 //            }
-            try {
-                TimeUnit.SECONDS.sleep(3);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println(name + " process result: " + outputData);
-            //放入当前Task的缓冲池，推向下游
+                try {
+                    TimeUnit.SECONDS.sleep(3);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println(name + " process result: " + outputData);
+                //放入当前Task的缓冲池，推向下游
 //            output.add(outputData);
-            output.push(outputData);
-            System.out.println(name + " write into BufferPool");
+                output.push(outputData);
+                System.out.println(name + " write into BufferPool");
+            }else if(inputElement.isWatermark()){
+                System.out.println(name + " process 【Watermark】!!");
+                Watermark watermark = inputElement.asWatermark();
+                output.push(watermark);
+            }
+
         }
     }
 

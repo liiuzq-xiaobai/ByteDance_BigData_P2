@@ -2,6 +2,7 @@ package main;
 import java.io.*;
 import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -40,7 +41,7 @@ public class KafkaSender extends Thread{
 
 		Random rand1 = new Random();
 		//发送10000个单词
-//		for(int i=0;i<20;i++) {
+//		for(int i=0;i<100;i++) {
 //			String[] buffer = new String[count];
 //			for (int j = 0; j < count; j++) {
 //				buffer[j]=words[rand1.nextInt(words.length)];

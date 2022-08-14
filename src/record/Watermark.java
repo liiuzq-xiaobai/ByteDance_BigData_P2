@@ -1,5 +1,7 @@
 package record;
 
+import java.util.Date;
+
 /**
  * @author kevin.zeng
  * @description
@@ -10,5 +12,16 @@ public class Watermark extends StreamElement {
 
     public Watermark(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public Watermark(){
+        this(new Date().getTime());
+    }
+
+    @Override
+    public String toString() {
+        return "Watermark{" +
+                "timestamp=" + timestamp +
+                '}';
     }
 }

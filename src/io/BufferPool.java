@@ -58,28 +58,37 @@ public class BufferPool<T extends StreamElement> {
 
     //强行默认以String类型为key
     //TODO 只为了能实现相同单词到同一个管道，后面可能要改
-    public void push(T data, KeySelector<T,String> keySelector){
+    //这个push方法针对的是StreamRecord数据
+    public void push(T data, KeySelector<StreamElement,String> keySelector){
         //先加入缓冲池
         add(data);
         int channelIndex;
         if(keySelector == null){
             //没有分区需求，随机放置
             channelIndex = random.nextInt(channels.size());
+            channels.get(channelIndex).add(data);
         }else {
             if(data.isRecord()){
                 //如果是StreamRecord类型且有分区需求，根据哈希值放入对应
                 //根据keySelector获取key，根据key的哈希值放入对应管道
-                String key = keySelector.getKey(data);
+                StreamRecord<T> record = data.asRecord();
+                String key = keySelector.getKey(record);
                 int hash = key.hashCode();
                 //保证索引为非负数
                 channelIndex = Math.abs(hash % channels.size());
                 System.out.println(Thread.currentThread().getName() + "【generate key】 " + key + " " + channelIndex);
+                channels.get(channelIndex).add(data);
+            }else if(data.isWatermark()) {
+                //如果数据是watermark，每个管道都要发
+                for(InputChannel<T> channel:channels){
+                    channel.add(data);
+                }
             }else {
-                //其他情况
                 channelIndex = 0;
+                channels.get(channelIndex).add(data);
             }
         }
-        channels.get(channelIndex).add(data);
+
     }
 
     //为当前数据源绑定一个下游输出

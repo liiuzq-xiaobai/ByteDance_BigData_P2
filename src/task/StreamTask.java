@@ -4,6 +4,7 @@ import environment.RunTimeEnvironment;
 import io.BufferPool;
 import io.InputChannel;
 import operator.StreamOperator;
+import record.StreamElement;
 import record.StreamRecord;
 
 import java.util.List;
@@ -19,13 +20,18 @@ public class StreamTask<IN,OUT> extends Thread {
     protected RunTimeEnvironment environment;
 
     //当前task生产的数据放到Buffer中
-    protected BufferPool<StreamRecord<OUT>> output;
+//    protected BufferPool<StreamRecord<OUT>> output;
+
+    protected BufferPool<StreamElement> output;
+
 
     //一个task接收一个InputChannel发送的数据
-    protected InputChannel<StreamRecord<IN>> input;
+//    protected InputChannel<StreamRecord<IN>> input;
+
+    protected InputChannel<StreamElement> input;
 
     //一个task可以接收多个InputChannel发送到数据
-    protected List<InputChannel<StreamRecord<IN>>> inputs;
+    protected List<InputChannel<StreamElement>> inputs;
 
     //task执行算子逻辑
     protected StreamOperator<IN,OUT> mainOperator;
@@ -40,11 +46,19 @@ public class StreamTask<IN,OUT> extends Thread {
         this.mainOperator = mainOperator;
     }
 
-    public void setOutput(BufferPool<StreamRecord<OUT>> output) {
+//    public void setOutput(BufferPool<StreamRecord<OUT>> output) {
+//        this.output = output;
+//    }
+
+    public void setOutput(BufferPool<StreamElement> output) {
         this.output = output;
     }
 
-    public void setInput(InputChannel<StreamRecord<IN>> input) {
+//    public void setInput(InputChannel<StreamRecord<IN>> input) {
+//        this.input = input;
+//    }
+
+    public void setInput(InputChannel<StreamElement> input) {
         this.input = input;
     }
 

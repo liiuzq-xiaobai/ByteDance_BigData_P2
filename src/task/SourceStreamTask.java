@@ -7,9 +7,12 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import record.StreamRecord;
+import record.Watermark;
 
+import java.sql.Time;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author kevin.zeng
@@ -54,9 +57,13 @@ public class SourceStreamTask extends StreamTask<String, String> {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
                 for (ConsumerRecord<String, String> record:records) {
                     String obj = record.value();
+                    //每隔10ms向下游传递一条数据
+                    TimeUnit.MILLISECONDS.sleep(10);
                     StreamRecord<String> streamRecord = new StreamRecord<>(obj);
                     //放入下游的Buffer中，并将数据推向下游算子的输入管道
                     output.push(streamRecord);
+                    Watermark watermark = new Watermark();
+                    output.push(watermark);
                     System.out.println(name + " produce: " + obj);
                 }
             }

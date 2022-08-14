@@ -11,6 +11,7 @@ import main.KafkaSender;
 import operator.OneInputStreamOperator;
 import operator.StreamMap;
 import operator.StreamReduce;
+import record.StreamElement;
 import record.StreamRecord;
 import record.Tuple2;
 import task.*;
@@ -24,8 +25,9 @@ import java.util.concurrent.TimeUnit;
  * @create 2022-08-12
  */
 public class TestPartition {
-    static int parrellism = Runtime.getRuntime().availableProcessors();
-    //相当于execute中的内容
+//    static int parrellism = Runtime.getRuntime().availableProcessors();
+    static int parrellism = 2;
+    //TODO 相当于execute中的内容
     public static void main(String[] args) throws InterruptedException {
         //TODO 以下为DAG图构造过程（此处只用了硬代码）
 
@@ -40,9 +42,9 @@ public class TestPartition {
 
         //创建key选择器
         KeySelector<Tuple2<String,Integer>,String> keySelector = new WordKeySelector();
-        //将key选择器转换为StreamRecord包装的形式
+        //将key选择器转换为StreamElement包装的形式
         KeySelectorWrapper<Tuple2<String,Integer>> wrapper = new KeySelectorWrapper<>();
-        KeySelector<StreamRecord<Tuple2<String, Integer>>, String> keySelector1 = wrapper.convert(keySelector);
+        KeySelector<StreamElement, String> keySelector1 = wrapper.convert(keySelector);
         //map算子的运行节点
         ExecutionJobVertex<String,Tuple2<String,Integer>> vertex = new ExecutionJobVertex<>();
         //创建map算子，声明key选择器
@@ -51,16 +53,16 @@ public class TestPartition {
         List<StreamTask<String,Tuple2<String,Integer>>> mapTaskList = new ArrayList<>();
         vertex.setTasks(mapTaskList);
         //source算子绑定下游输出Buffer
-        BufferPool<StreamRecord<String>> sourceBuffer = new BufferPool<>();
+        BufferPool<StreamElement> sourceBuffer = new BufferPool<>();
         consumer.setOutput(sourceBuffer);
         //map算子的channel集合
-        List<InputChannel<StreamRecord<String>>> mapChannel = new ArrayList<>();
+        List<InputChannel<StreamElement>> mapChannel = new ArrayList<>();
         //channel输入集合要和上游task的buffer绑定，以实现并行
         sourceBuffer.bindInputChannel(mapChannel);
         //算子有几个并行度就会有几个bufferPool，输出数据类型为map
-        List<BufferPool<StreamRecord<Tuple2<String,Integer>>>> mapBuffer = new ArrayList<>();
+        List<BufferPool<StreamElement>> mapBuffer = new ArrayList<>();
         for (int i = 0; i < parrellism ; i++) {
-            BufferPool<StreamRecord<Tuple2<String,Integer>>> pool = new BufferPool<>();
+            BufferPool<StreamElement> pool = new BufferPool<>();
             //map算子的bufferPool要启用分区，以便进行reduce计算
             pool.enablePartition();
             mapBuffer.add(pool);
@@ -71,7 +73,7 @@ public class TestPartition {
             OneInputStreamTask<String,Tuple2<String,Integer>> mapTask = new OneInputStreamTask<>();
             mapTask.setMainOperator(mapper);
             //创建task的上游输入channel
-            InputChannel<StreamRecord<String>> input = new InputChannel<>();
+            InputChannel<StreamElement> input = new InputChannel<>();
             //channel数据的提供者是sourceBuffer
             input.bindProviderBuffer(Collections.singletonList(sourceBuffer));
             //为channel绑定所属的运行节点
@@ -110,10 +112,10 @@ public class TestPartition {
         List<StreamTask<Tuple2<String,Integer>,Tuple2<String,Integer>>> reduceTaskList = new ArrayList<>();
         reduceVertex.setTasks(reduceTaskList);
         //reduce算子的channel集合
-        List<InputChannel<StreamRecord<Tuple2<String,Integer>>>> reduceChannel = new ArrayList<>();
+        List<InputChannel<StreamElement>> reduceChannel = new ArrayList<>();
         //
         //reduce算子的buffer集合
-        List<BufferPool<StreamRecord<Tuple2<String,Integer>>>> reduceBuffer = new ArrayList<>();
+        List<BufferPool<StreamElement>> reduceBuffer = new ArrayList<>();
         //channel输入集合要和上游task的buffer绑定，以实现并行
 //        sourceBuffer.bindInputChannel(mapChannel);
         //根据下游的并行度设置InputChannel，这里下游是map算子
@@ -123,7 +125,7 @@ public class TestPartition {
             reduceTask.setMainOperator(reducerList.get(i));
 //            reduceTask.setMainOperator(reducerList.get(0));
             //创建task的上游输入channel
-            InputChannel<StreamRecord<Tuple2<String,Integer>>> input = new InputChannel<>();
+            InputChannel<StreamElement> input = new InputChannel<>();
             //channel数据的提供者
             input.bindProviderBuffer(mapBuffer);
             //为channel绑定所属的运行节点
@@ -133,7 +135,7 @@ public class TestPartition {
             //输入管道和task绑定
             reduceTask.setInput(input);
             //每个task绑定一个输出池
-            BufferPool<StreamRecord<Tuple2<String,Integer>>> pool = new BufferPool<>();
+            BufferPool<StreamElement> pool = new BufferPool<>();
             reduceBuffer.add(pool);
             reduceTask.setOutput(pool);
             //设置线程名称
@@ -149,7 +151,7 @@ public class TestPartition {
         //task命名
         sinkTask.name("Sink");
         //创建输入管道
-        InputChannel<StreamRecord<Tuple2<String,Integer>>> sinkInput = new InputChannel<>();
+        InputChannel<StreamElement> sinkInput = new InputChannel<>();
         sinkTask.setInput(sinkInput);
         //为sink的inputChannel绑定数据源buffer
         sinkInput.bindProviderBuffer(reduceBuffer);

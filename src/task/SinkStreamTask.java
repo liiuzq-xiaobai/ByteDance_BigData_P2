@@ -1,6 +1,11 @@
 package task;
 
+import record.StreamElement;
 import record.StreamRecord;
+import utils.SinkUtils;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
 
 
 /**
@@ -15,10 +20,19 @@ public class SinkStreamTask<IN> extends StreamTask<IN,String> {
         while(true){
             //从InputChannel读取数据
             System.out.println(name + " read from InputChannel");
-            StreamRecord<IN> inputData = input.take();
-            //写入文件
-            IN value = inputData.getValue();
-            System.out.println(name + " 【print value】" + value);
+            StreamElement inputElement = this.input.take();
+            //判断拉取数据的类型
+            if(inputElement.isRecord()){
+                StreamRecord<IN> inputRecord = inputElement.asRecord();
+                //写入文件
+                IN value = inputRecord.getValue();
+                try {
+                    SinkUtils.writeIntoFile("output/wordcount.txt",inputRecord);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                System.out.println(name + " 【print value】" + value);
+            }
             //放入当前Task的缓冲池，并推向下游（sink不需要推了）
 //            output.push(outputData,keySelector);
 //            System.out.println(name + " write into BufferPool");

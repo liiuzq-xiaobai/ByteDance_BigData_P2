@@ -31,8 +31,8 @@ public class Tuple2<T0,T1> {
     @Override
     public String toString() {
         return "Tuple2{" +
-                "f0=" + f0 +
-                ", f1=" + f1 +
+                "word=" + f0 +
+                ", count=" + f1 +
                 '}';
     }
 }
