@@ -7,7 +7,7 @@ import java.util.Collection;
  * @description
  * @create 2022-08-14
  */
-public abstract class WindowAssigner<T, W extends TimeWindow> {
+public abstract class WindowAssigner<T> {
 
-    public abstract Collection<W> assignWindows(T element, long timestamp);
+    public abstract Collection<TimeWindow> assignWindows(T element, long timestamp);
 }

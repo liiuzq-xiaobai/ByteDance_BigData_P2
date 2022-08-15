@@ -8,7 +8,7 @@ import java.util.Collections;
  * @description 基于处理时间的滚动窗口
  * @create 2022-08-14
  */
-public class TumblingProcessingTimeWindows extends WindowAssigner<Object,TimeWindow> {
+public class TumblingProcessingTimeWindows extends WindowAssigner<Object> {
     private final long size;
 
     public TumblingProcessingTimeWindows(long size) {
