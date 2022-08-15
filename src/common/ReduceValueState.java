@@ -1,4 +1,8 @@
 package common;
+
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * @author kevin.zeng
  * @description
@@ -18,5 +22,10 @@ public class ReduceValueState<IN> implements ValueState<IN> {
     public void update(IN value) {
         this.value = value;
         System.out.println(Thread.currentThread().getName() + " update ValueState to " + value);
+    }
+
+    @Override
+    public Collection<IN> get() {
+        return Collections.singleton(value);
     }
 }

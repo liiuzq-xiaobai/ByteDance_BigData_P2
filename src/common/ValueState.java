@@ -1,5 +1,7 @@
 package common;
 
+import java.util.Collection;
+
 /**
  * @author kevin.zeng
  * @description
@@ -12,4 +14,6 @@ public interface ValueState<T> extends State {
     T value();
 
     void update(T value);
+
+    Collection<T> get();
 }

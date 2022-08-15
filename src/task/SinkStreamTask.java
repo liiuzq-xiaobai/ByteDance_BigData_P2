@@ -4,7 +4,6 @@ import record.StreamElement;
 import record.StreamRecord;
 import utils.SinkUtils;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 
 

@@ -1,6 +1,7 @@
 package operator;
 
 import record.StreamRecord;
+import task.StreamTask;
 
 /**
  * @author kevin.zeng
@@ -9,5 +10,8 @@ import record.StreamRecord;
  */
 //IN为operator输入数据类型，OUT为输出数据类型
 public abstract class StreamOperator<IN,OUT> {
+
+    protected StreamTask<?,?> container;
+
     public abstract OUT processElement(StreamRecord<IN> record);
 }

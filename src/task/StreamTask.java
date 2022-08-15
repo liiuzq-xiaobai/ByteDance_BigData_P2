@@ -1,5 +1,7 @@
 package task;
 
+import common.KeyedState;
+import common.ValueState;
 import environment.RunTimeEnvironment;
 import io.BufferPool;
 import io.InputChannel;
@@ -23,7 +25,6 @@ public class StreamTask<IN,OUT> extends Thread {
 //    protected BufferPool<StreamRecord<OUT>> output;
 
     protected BufferPool<StreamElement> output;
-
 
     //一个task接收一个InputChannel发送的数据
 //    protected InputChannel<StreamRecord<IN>> input;
