@@ -24,6 +24,9 @@ public class StreamTask<IN,OUT> extends Thread {
     //当前task生产的数据放到Buffer中
 //    protected BufferPool<StreamRecord<OUT>> output;
 
+    //当前task所属的状态存储
+    protected KeyedState<String,IN> state;
+
     protected BufferPool<StreamElement> output;
 
     //一个task接收一个InputChannel发送的数据

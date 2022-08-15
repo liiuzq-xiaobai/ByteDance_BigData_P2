@@ -5,6 +5,7 @@ import record.StreamElement;
 import record.StreamRecord;
 import record.Watermark;
 import window.TimeWindow;
+import window.WindowAssigner;
 
 import java.util.concurrent.TimeUnit;
 
@@ -14,8 +15,7 @@ import java.util.concurrent.TimeUnit;
  * @create 2022-08-12
  */
 public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
-
-    TimeWindow window;
+    WindowAssigner<StreamElement,TimeWindow> windowAssigner;
 
     @Override
     public void run() {

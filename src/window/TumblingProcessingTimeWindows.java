@@ -1,6 +1,7 @@
 package window;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author kevin.zeng
@@ -20,6 +21,7 @@ public class TumblingProcessingTimeWindows extends WindowAssigner<Object,TimeWin
 
     @Override
     public Collection<TimeWindow> assignWindows(Object element, long timestamp) {
-        return null;
+        final long now = System.currentTimeMillis();
+        return Collections.singleton(new TimeWindow(now,now+size));
     }
 }

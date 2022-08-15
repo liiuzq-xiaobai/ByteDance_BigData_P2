@@ -1,6 +1,8 @@
 package common;
 
 
+import java.util.Collection;
+
 /**
  * @author kevin.zeng
  * @description
@@ -10,5 +12,10 @@ public interface KeyedState<K,V> extends ValueState<V> {
     //根据key值取value
     V value(K key);
 
+    V value();
+
+    void update(V value);
+
+    Collection<V> get();
 
 }
