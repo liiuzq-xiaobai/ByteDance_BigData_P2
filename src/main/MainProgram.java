@@ -190,10 +190,11 @@ public class MainProgram {
         }
 
         //****创建全局运行环境
-        //TODO mapTask无法加入，类型不兼容
         RunTimeEnvironment environment = new RunTimeEnvironment();
         environment.addTasks(Collections.singletonList(consumer));
         environment.addTasks(Collections.singletonList(sinkTask));
+        mapTaskList.forEach(environment::addTask);
+        reduceTaskList.forEach(environment::addTask);
 
         //****开始运行
         environment.start();

@@ -24,6 +24,10 @@ public class RunTimeEnvironment extends Thread{
         this.tasks.addAll(tasks);
     }
 
+    public void addTask(StreamTask<?,?> task){
+        tasks.add(task);
+    }
+
     //TODO 检测运行实例是否正常运行
     public void checkTask(){
         for(StreamTask task : tasks){
