@@ -5,6 +5,8 @@ import function.KeySelector;
 import record.StreamElement;
 import record.StreamRecord;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -54,6 +56,18 @@ public class BufferPool<T extends StreamElement> {
     //将数据推向下游
     public void push(T data){
         push(data,null);
+    }
+
+    public void makeSnapShot(){
+        //获取当前写入的数据长度
+
+        //创建文件
+
+        //将上一个检查点到当前位置的数据持久化进文件
+
+        //可以使用JSON库处理数据
+
+        //恢复时，恢复到检查点位置
     }
 
     //强行默认以String类型为key

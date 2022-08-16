@@ -1,9 +1,46 @@
 package environment;
 
+import task.StreamTask;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author kevin.zeng
- * @description
- * @create 2022-08-12
+ * @description 全局运行环境
+ * @create 2022-08-16
  */
-public class RunTimeEnvironment {
+public class RunTimeEnvironment extends Thread{
+
+    //全局环境包含所有的运行实例
+    private List<StreamTask<?,?>> tasks;
+
+    public RunTimeEnvironment(){
+        tasks = new ArrayList<>();
+    }
+
+    public void addTasks(List<StreamTask<?, ?>> tasks) {
+        this.tasks.addAll(tasks);
+    }
+
+    //TODO 检测运行实例是否正常运行
+    public void checkTask(){
+        for(StreamTask task : tasks){
+            Thread.State state = task.getState();
+            System.out.println(task.getName() + "---"+ state);
+        }
+    }
+    @Override
+    public void run(){
+        while(true){
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            checkTask();
+        }
+
+    }
 }

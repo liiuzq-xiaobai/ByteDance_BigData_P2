@@ -5,6 +5,6 @@ package record;
  * @description
  * @create 2022-08-12
  */
-public class CheckPoint extends StreamRecord<String> {
+public class CheckPointBarrier extends StreamElement {
 
 }

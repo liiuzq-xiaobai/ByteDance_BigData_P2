@@ -1,7 +1,6 @@
 package task;
 
 import function.KeySelector;
-import record.CheckPoint;
 import record.StreamElement;
 import record.StreamRecord;
 import record.Watermark;
@@ -34,7 +33,6 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
             //从InputChannel读取数据
             System.out.println(name + " read from InputChannel");
             StreamElement inputElement = input.take();
-            //TODO 如果遇到barrier类型数据，从inputChannel获取消费偏移量
             //如果是record类型数据
             if(inputElement.isRecord()){
                 StreamRecord<IN> inputRecord = inputElement.asRecord();
@@ -56,7 +54,10 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
                 Watermark watermark = inputElement.asWatermark();
                 output.push(watermark);
             }
+            /*TODO 如果遇到barrier类型数据，保存其下游Buffer当前的数据内容
+               (范围可以是上一个barrier保存的数据~当前数据)
 
+            */
         }
     }
 }

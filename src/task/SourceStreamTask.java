@@ -61,9 +61,10 @@ public class SourceStreamTask extends StreamTask<String, String> {
                     TimeUnit.MILLISECONDS.sleep(1000);
                     StreamRecord<String> streamRecord = new StreamRecord<>(obj);
                     //放入下游的Buffer中，并将数据推向下游算子的输入管道
-                    output.push(streamRecord);
+//                    output.push(streamRecord);
+
                     Watermark watermark = new Watermark();
-                    output.push(watermark);
+//                    output.push(watermark);
                     System.out.println(name + " produce: " + obj);
                 }
             }

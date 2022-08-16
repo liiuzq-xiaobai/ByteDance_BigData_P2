@@ -1,13 +1,11 @@
 package task;
 
 import common.KeyedState;
-import common.ValueState;
-import environment.RunTimeEnvironment;
+import environment.StreamExecutionEnvironment;
 import io.BufferPool;
 import io.InputChannel;
 import operator.StreamOperator;
 import record.StreamElement;
-import record.StreamRecord;
 
 import java.util.List;
 
@@ -19,7 +17,7 @@ import java.util.List;
 public class StreamTask<IN,OUT> extends Thread {
 
     //task属于一个运行环境
-    protected RunTimeEnvironment environment;
+    protected StreamExecutionEnvironment environment;
 
     //当前task生产的数据放到Buffer中
 //    protected BufferPool<StreamRecord<OUT>> output;
