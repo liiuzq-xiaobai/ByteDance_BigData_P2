@@ -56,7 +56,6 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
                 Watermark watermark = inputElement.asWatermark();
                 output.push(watermark);
             }
-            //TODO 如果是watermark类型数据
 
         }
     }

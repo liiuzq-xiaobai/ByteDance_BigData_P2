@@ -1,10 +1,8 @@
 package task;
 
-import operator.StreamReduce;
 import record.StreamElement;
 import record.StreamRecord;
 import record.Watermark;
-import window.TimeWindow;
 import window.WindowAssigner;
 
 import java.util.concurrent.TimeUnit;
