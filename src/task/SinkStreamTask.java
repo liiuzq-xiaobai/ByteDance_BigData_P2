@@ -5,6 +5,8 @@ import record.StreamRecord;
 import utils.SinkUtils;
 
 import java.io.IOException;
+import java.sql.Time;
+import java.util.concurrent.TimeUnit;
 
 
 /**
