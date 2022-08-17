@@ -21,4 +21,11 @@ public class StreamElement {
     public final Watermark asWatermark() {
         return (Watermark) this;
     }
+
+    public final boolean isCheckpoint() {
+        return getClass() == CheckPointBarrier.class;
+    }
+    public final CheckPointBarrier asCheckpoint() {
+        return (CheckPointBarrier) this;
+    }
 }

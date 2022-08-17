@@ -7,6 +7,7 @@ import function.MapFunction;
 import function.ReduceFunction;
 import io.BufferPool;
 import io.InputChannel;
+import io.SinkBufferPool;
 import main.KafkaSender;
 import operator.OneInputStreamOperator;
 import operator.StreamMap;
@@ -168,8 +169,15 @@ public class TestPartition {
             reduceTaskList.add(reduceTask);
         }
 
+
         //连接reduce和sink算子
-        SinkStreamTask<Tuple2<String, Integer>> sinkTask = new SinkStreamTask<>();
+
+        //为sink算子创建识别到checkpoint后保存数据的容器
+        SinkBufferPool result = new SinkBufferPool();
+        SinkStreamTask<Tuple2<String, Integer>> sinkTask = new SinkStreamTask<>(result);
+        //为sink算子绑定下游输出Buffer
+        BufferPool<StreamElement> sinkBuffer = new BufferPool<>();
+        sinkTask.setOutput(sinkBuffer);
         //task命名
         sinkTask.name("Sink");
         //创建输入管道
@@ -177,6 +185,11 @@ public class TestPartition {
         sinkTask.setInput(sinkInput);
         //为sink的inputChannel绑定数据源buffer
         sinkInput.bindProviderBuffer(reduceBuffer);
+        //为sink算子创建并绑定输出池
+        BufferPool<StreamElement> sinkBufferPool = new BufferPool<>();
+        sinkTask.setOutput(sinkBufferPool);
+
+
         /*TODO 当前数据传输方式为 Buffer push数据 到InputChannel
                 是否需要改成InputChannel 从 上游Buffer拉取数据
          */
