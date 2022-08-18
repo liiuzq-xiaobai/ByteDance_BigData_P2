@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
 
     public KeySelector<StreamElement,String> keySelector;
-
+    private Watermark systemWatermark;
     public void setKeySelector(KeySelector<StreamElement, String> keySelector) {
         this.keySelector = keySelector;
     }
@@ -38,6 +38,11 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
             if(inputElement.isRecord()){
                 StreamRecord<IN> inputRecord = inputElement.asRecord();
                 //调用处理逻辑
+                //watermark系统时间检查
+                if(systemWatermark != null && inputRecord.getTimestamp() < systemWatermark.getTimestamp()){
+                    System.out.println(name + "ignore a expired record");
+                    continue;
+                }
                 System.out.println(name + " processing ....");
                 try {
                     TimeUnit.SECONDS.sleep(3);
@@ -52,8 +57,8 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
                 System.out.println(name + " write into BufferPool");
             }else if(inputElement.isWatermark()){
                 System.out.println(name + " process 【Watermark】!!");
-                Watermark watermark = inputElement.asWatermark();
-                output.push(watermark);
+                systemWatermark = inputElement.asWatermark();
+                output.push(systemWatermark);
             }else if(inputElement.isCheckpoint()){
                 CheckPointBarrier barrier = inputElement.asCheckpoint();
                 boolean isChecked = mainOperator.snapshotState();

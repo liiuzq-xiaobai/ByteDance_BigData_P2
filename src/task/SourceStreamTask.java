@@ -1,15 +1,16 @@
 package task;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.TopicPartition;
 import record.CheckPointBarrier;
+import record.CheckPointRecord;
 import record.StreamRecord;
 import record.Watermark;
+import utils.WriteCheckPointUtils;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -24,13 +25,30 @@ public class SourceStreamTask extends StreamTask<String, String> {
     public SourceStreamTask(){
         super();
     }
+    private KafkaConsumer consumer;
+    private Map<TopicPartition, OffsetAndMetadata> currentOffsets = new ConcurrentHashMap<>();//用于跟踪偏移量的map
+    private TopicPartition topicPartition;
+    //由runtimeenv调用的发起checkpoint请求函数
+    public boolean sendcheckpointBarrier(){
+        //得到当前的offset
+        try {
+            long offset = currentOffsets.get(topicPartition).offset();
+            CheckPointRecord sourceckpoint = new CheckPointRecord("Source", this.getName(), offset, this.getState().toString());
+            WriteCheckPointUtils.writeCheckPointFile("checkpoint/source.txt", sourceckpoint);
+            return true;
+        }catch (Exception e){
+            System.out.println("sourece sendcheckpointBarrier called by runenv is wrong");
+            e.printStackTrace();
+            return true;
+        }
+    }
+    private boolean nowSnapShot = false;
 
     @Override
     public void run() {
         String name = Thread.currentThread().getName();
         //1.创建消费者配置类
         Properties props = new Properties();
-
         //2.给配置信息赋值
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"120.26.142.199:9092");
 
@@ -48,10 +66,9 @@ public class SourceStreamTask extends StreamTask<String, String> {
         //消费者组
 		props.put(ConsumerConfig.GROUP_ID_CONFIG,GROUP);
         System.out.println("Receive message");
-
-        try(KafkaConsumer<String,String> consumer = new KafkaConsumer<>(props);){
+        consumer = new KafkaConsumer<>(props);
+        try{
             consumer.subscribe(Collections.singletonList(TOPIC));
-
             while(true){
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
                 for (ConsumerRecord<String, String> record:records) {
@@ -62,12 +79,19 @@ public class SourceStreamTask extends StreamTask<String, String> {
                     StreamRecord<String> streamRecord = new StreamRecord<>(obj);
                     //放入下游的Buffer中，并将数据推向下游算子的输入管道
                     output.push(streamRecord);
-
+                    //更新offset位置
+                    topicPartition = new TopicPartition(record.topic(), record.partition());
+                    currentOffsets.put(topicPartition, new OffsetAndMetadata(record.offset() + 1,"no matadata"));
                     Watermark watermark = new Watermark();
                     output.push(watermark);
-
                     //TODO source算子手动发送barrier，每五条发一次
                     if(counter % 5 == 0){
+                        //保存offset，提交consumer的消费记录
+                        CheckPointRecord sourceckpoint = new CheckPointRecord("Source",this.getName(),record.offset(),this.getState().toString());
+                        WriteCheckPointUtils.writeCheckPointFile("checkpoint/source.txt",sourceckpoint);
+                        //Kafka提交当前Offset
+                        consumer.commitAsync(currentOffsets, null);
+                        //下发checkpoint
                         CheckPointBarrier barrier = new CheckPointBarrier();
                         output.push(barrier);
                     }
