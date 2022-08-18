@@ -2,10 +2,8 @@ package task;
 
 import main.DataStream;
 import operator.StreamOperator;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.TopicPartition;
 import record.CheckPointBarrier;
 import record.CheckPointRecord;
 import record.StreamRecord;
@@ -29,6 +27,7 @@ public class SourceStreamTask extends StreamTask<String, String> {
         super();
     }
     public boolean nowSnapshot = false;
+    private Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();//用于跟踪偏移量的map
     public synchronized boolean sendCheckPointBarrier(){
         try{
             nowSnapshot = true;
@@ -68,11 +67,18 @@ public class SourceStreamTask extends StreamTask<String, String> {
             while(true){
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
                 for (ConsumerRecord<String, String> record:records) {
-                    //System.out.printf("value:{%s},offset:{%s}",record.value(),record.offset());
+                    //runenv对sourcetask采取异步通信方式，runenv只是将sourecetask中的nowSnapshot标志位进行改变，不会等待sourcetask真正执行完具体逻辑后返回结果
                     if(nowSnapshot == true){
+                        currentOffsets.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset() + 1,"no matadata"));
+                        //把当前offset等其他metadata写入checkpoint
                         CheckPointRecord sourceckpoint = new CheckPointRecord("Source",this.getName(),record.offset(),this.getState().toString());
                         WriteCheckPointUtils.writeCheckPointFile("checkpoint/source.txt",sourceckpoint);
+                        //Kafka提交当前Offset
+                        consumer.commitAsync(currentOffsets, null);
                         nowSnapshot = false;
+                        //往下游发送checkPointBarrier
+                        CheckPointBarrier checkPointBarrier = new CheckPointBarrier();
+                        output.push(checkPointBarrier);
                     }else{
                         String obj = record.value();
                         //每隔1s向下游传递一条数据
