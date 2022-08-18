@@ -69,7 +69,7 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
             try {
                 if (!file.exists()) file.createNewFile();
                 writer = new BufferedWriter(new FileWriter(file));
-                writer.write(getId());
+                writer.write(String.valueOf(getId()));
                 writer.newLine();
                 for (T value : copyForCheckpoint) {
                     writer.write(value.toString());
