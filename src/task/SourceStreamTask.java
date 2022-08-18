@@ -1,7 +1,5 @@
 package task;
 
-import main.DataStream;
-import operator.StreamOperator;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -10,7 +8,6 @@ import record.CheckPointBarrier;
 import record.StreamRecord;
 import record.Watermark;
 
-import java.sql.Time;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class SourceStreamTask extends StreamTask<String, String> {
     static final String TOPIC = "zbw_test";
     static final String GROUP = "zbw_test_group";
+    int counter=0;
     public SourceStreamTask(){
         super();
     }
@@ -57,6 +55,7 @@ public class SourceStreamTask extends StreamTask<String, String> {
             while(true){
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
                 for (ConsumerRecord<String, String> record:records) {
+                    counter++;
                     String obj = record.value();
                     //每隔1s向下游传递一条数据
                     TimeUnit.MILLISECONDS.sleep(1000);
@@ -66,8 +65,13 @@ public class SourceStreamTask extends StreamTask<String, String> {
 
                     Watermark watermark = new Watermark();
                     output.push(watermark);
-                    CheckPointBarrier barrier = new CheckPointBarrier();
-                    output.push(barrier);
+
+                    //TODO source算子手动发送barrier，每五条发一次
+                    if(counter % 5 == 0){
+                        CheckPointBarrier barrier = new CheckPointBarrier();
+                        output.push(barrier);
+                    }
+
                     System.out.println(name + " produce: " + obj);
                 }
             }

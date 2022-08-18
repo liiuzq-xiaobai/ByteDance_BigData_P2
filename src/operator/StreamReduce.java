@@ -1,6 +1,5 @@
 package operator;
 
-import common.KeyedState;
 import function.KeySelector;
 import function.ReduceFunction;
 import record.StreamRecord;
@@ -11,8 +10,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author kevin.zeng
@@ -61,7 +58,7 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
     public void snapshotState() {
         //TODO 存储该算子所持有的keystate的当前数据
         //在进行checkpoint操作前，需要获取当前的keystate数据
-        Collection<T> valueForCheckpoint = copyKeyedState();
+        Collection<T> copyForCheckpoint = copyKeyedState();
         //将当前的keystate状态存入文件，异步
 //        new Thread(() -> {
             String name = Thread.currentThread().getName();
@@ -74,9 +71,8 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
                 writer = new BufferedWriter(new FileWriter(file));
                 writer.write(getId());
                 writer.newLine();
-                for (T value : valueForCheckpoint) {
+                for (T value : copyForCheckpoint) {
                     writer.write(value.toString());
-                    writer.flush();
                     writer.newLine();
                 }
             } catch (IOException e) {
@@ -93,14 +89,14 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
     }
 
     public Collection<T> copyKeyedState() {
-        //由于进行快照时，keystate可能还会去处理数据，因此获取状态数据时要对keystate加锁
+        //由于进行快照时，keystate可能还会去处理数据，因此获取状态数据复制时要对keystate加锁
         Collection<T> current;
+        Collection<T> copyForCheckpoint = new ArrayList<>();
         synchronized (valueState) {
             current = valueState.get();
+            copyForCheckpoint.addAll(current);
         }
-        Collection<T> valueForCheckpoint = new ArrayList<>();
-        valueForCheckpoint.addAll(current);
-        return valueForCheckpoint;
+        return copyForCheckpoint;
     }
 
 }
