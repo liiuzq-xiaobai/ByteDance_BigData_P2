@@ -61,6 +61,8 @@ public class SinkStreamTask<IN> extends StreamTask<IN,String> {
                 CheckPointBarrier inputCheckpoint = inputElement.asCheckpoint();
                 output.add(inputElement);
                 result.copyExistingBuffer(output);
+                //当result完成对缓冲池的copy后，原缓冲池的数据就可以删除了，避免下次再次copy
+                output.getList().clear();
             }
             //放入当前Task的缓冲池，并推向下游（sink不需要推了）
 //            output.push(outputData,keySelector);
