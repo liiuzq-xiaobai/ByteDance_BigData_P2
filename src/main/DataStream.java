@@ -57,13 +57,16 @@ public class DataStream {
 	
 	public void addToMaps(ObjectWrapper obj) {
 		if(obj!=null) {
+			// 计算obj的hashcode
 			int mapIndex = obj.getKey().hashCode()%reduceCount;
+			// 计算obj应该放入哪个map
 			Map<String, ArrayList<String>> map = lists.get(mapIndex);
 			/*
 			if(obj.getKey().equals("--CHECKPOINT--")) {
 				map.put("--CHECKPOINT--", null);
 			}
 			*/
+			// 如果map里面有obj的key，那么在这个key后面追加obj的value，否则创建一个新的kv对加入map
 			if(map.containsKey(obj.getKey())) {
 				map.get(obj.getKey()).add(obj.getValue());
 			}else {

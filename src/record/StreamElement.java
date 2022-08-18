@@ -21,4 +21,14 @@ public class StreamElement {
     public final Watermark asWatermark() {
         return (Watermark) this;
     }
+
+    // 判断是否是checkPoint
+    public final boolean isCheckPointBarrier(){
+        return getClass() == CheckPointBarrier.class;
+    }
+
+    // 转换成CheckPointBarrier类型
+    public final CheckPointBarrier asCheckPointBarrier() {
+        return (CheckPointBarrier) this;
+    }
 }

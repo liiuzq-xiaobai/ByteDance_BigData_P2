@@ -1,0 +1,12 @@
+Tuple2{word=hello, count=1}
+Tuple2{word=world, count=1}
+Tuple2{word=hello, count=2}
+Tuple2{word=flink, count=1}
+Tuple2{word=yyds, count=1}
+Tuple2{word=hello, count=3}
+Tuple2{word=c++, count=1}
+Tuple2{word=java, count=1}
+Tuple2{word=golang, count=1}
+Tuple2{word=java, count=2}
+Tuple2{word=sql, count=1}
+Tuple2{word=python, count=1}

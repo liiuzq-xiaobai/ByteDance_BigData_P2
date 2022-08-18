@@ -5,8 +5,6 @@ import function.KeySelector;
 import record.StreamElement;
 import record.StreamRecord;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -48,7 +46,7 @@ public class BufferPool<T extends StreamElement> {
 
     public T take(int index){
         //防止数组越界
-        if(index >= list.size()) return null;
+        if(index >= list.size() || index < 0) return null;
         return list.get(index);
     }
 
@@ -57,22 +55,9 @@ public class BufferPool<T extends StreamElement> {
     public void push(T data){
         push(data,null);
     }
-
-    public void makeSnapShot(){
-        //获取当前写入的数据长度
-
-        //创建文件
-
-        //将上一个检查点到当前位置的数据持久化进文件
-
-        //可以使用JSON库处理数据
-
-        //恢复时，恢复到检查点位置
-    }
-
     //强行默认以String类型为key
     //TODO 只为了能实现相同单词到同一个管道，后面可能要改
-    //这个push方法针对的是StreamRecord数据
+    //这个push方法针对的是StreamRecord数据，即真实传递数据的封装
     public void push(T data, KeySelector<StreamElement,String> keySelector){
         //先加入缓冲池
         add(data);
@@ -83,7 +68,7 @@ public class BufferPool<T extends StreamElement> {
             channels.get(channelIndex).add(data);
         }else {
             if(data.isRecord()){
-                //如果是StreamRecord类型且有分区需求，根据哈希值放入对应
+                //如果是StreamRecord类型且有分区需求，根据哈希值放入对应管道
                 //根据keySelector获取key，根据key的哈希值放入对应管道
                 StreamRecord<T> record = data.asRecord();
                 String key = keySelector.getKey(record);
@@ -92,12 +77,13 @@ public class BufferPool<T extends StreamElement> {
                 channelIndex = Math.abs(hash % channels.size());
                 System.out.println(Thread.currentThread().getName() + "【generate key】 " + key + " " + channelIndex);
                 channels.get(channelIndex).add(data);
-            }else if(data.isWatermark()) {
-                //如果数据是watermark，每个管道都要发
+            }else if(data.isWatermark() || data.isCheckPointBarrier()) {
+                //如果数据是watermark或checkpoint，则每个下游管道都要发
                 for(InputChannel<T> channel:channels){
                     channel.add(data);
                 }
             }else {
+                // 否则，一律往0号管道发
                 channelIndex = 0;
                 channels.get(channelIndex).add(data);
             }
