@@ -24,4 +24,7 @@ public class Watermark extends StreamElement {
                 "timestamp=" + timestamp +
                 '}';
     }
+    public long getTimestamp() {
+        return timestamp;
+    }
 }

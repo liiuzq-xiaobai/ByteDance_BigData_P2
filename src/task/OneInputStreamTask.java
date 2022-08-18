@@ -1,6 +1,7 @@
 package task;
 
 import function.KeySelector;
+import record.CheckPointBarrier;
 import record.StreamElement;
 import record.StreamRecord;
 import record.Watermark;
@@ -13,14 +14,14 @@ import java.util.concurrent.TimeUnit;
  * @create 2022-08-12
  */
 
-//用于处理诸如map、reduce等算子逻辑
+//用于map等算子逻辑
 public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
 	 public OneInputStreamTask(){
 	        super("MAPPER");
 	}
 
     public KeySelector<StreamElement,String> keySelector;
-
+    private Watermark systemWatermark;
     public void setKeySelector(KeySelector<StreamElement, String> keySelector) {
         this.keySelector = keySelector;
     }
@@ -40,6 +41,11 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
             if(inputElement.isRecord()){
                 StreamRecord<IN> inputRecord = inputElement.asRecord();
                 //调用处理逻辑
+                //watermark系统时间检查
+                if(systemWatermark != null && inputRecord.getTimestamp() < systemWatermark.getTimestamp()){
+                    System.out.println(name + "ignore a expired record");
+                    continue;
+                }
                 System.out.println(name + " processing ....");
                 try {
                     TimeUnit.SECONDS.sleep(3);
@@ -54,12 +60,16 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
                 System.out.println(name + " write into BufferPool");
             }else if(inputElement.isWatermark()){
                 System.out.println(name + " process 【Watermark】!!");
-                Watermark watermark = inputElement.asWatermark();
-                output.push(watermark);
+                systemWatermark = inputElement.asWatermark();
+                output.push(systemWatermark);
+            }else if(inputElement.isCheckpoint()){
+                CheckPointBarrier barrier = inputElement.asCheckpoint();
+                boolean isChecked = mainOperator.snapshotState();
+                if(isChecked) sendAck();
+                output.push(barrier);
             }
             /*TODO 如果遇到barrier类型数据，保存其下游Buffer当前的数据内容
                (范围可以是上一个barrier保存的数据~当前数据)
-
             */
         }
     }

@@ -24,4 +24,15 @@ public class StreamMap<IN,OUT> extends OneInputStreamOperator<IN,OUT,MapFunction
         OUT value = userFunction.map(record.getValue());
         return value;
     }
+
+    @Override
+    public boolean snapshotState() {
+        return true;
+    }
+
+    @Override
+    public void recoverState() {
+
+    }
+
 }

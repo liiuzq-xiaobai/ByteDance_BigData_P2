@@ -217,9 +217,14 @@ public class MainProgram {
         environment.addTasks(Collections.singletonList(sinkTask));
         mapTaskList.forEach(environment::addTask);
         reduceTaskList.forEach(environment::addTask);
+        //所有task绑定全局运行环境
+        consumer.setEnvironment(environment);
+        sinkTask.setEnvironment(environment);
+        for(StreamTask task : mapTaskList) task.setEnvironment(environment);
+        for(StreamTask task:reduceTaskList) task.setEnvironment(environment);
 
         //****开始运行
-        environment.start();
+//        environment.start();
         //map算子
         for (int i = 0; i < mapParrellism; i++) {
             mapTaskList.get(i).start();

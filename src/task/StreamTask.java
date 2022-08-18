@@ -1,12 +1,16 @@
 package task;
 
 import common.KeyedState;
+import environment.RunTimeEnvironment;
 import environment.StreamExecutionEnvironment;
 import io.BufferPool;
 import io.InputChannel;
 import operator.StreamOperator;
 import record.StreamElement;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.List;
 
 /**
@@ -18,7 +22,7 @@ public class StreamTask<IN,OUT> extends Thread {
 	protected String taskCategory = null;
 
     //task属于一个运行环境
-    protected StreamExecutionEnvironment environment;
+    protected RunTimeEnvironment environment;
 
     //当前task生产的数据放到Buffer中
 //    protected BufferPool<StreamRecord<OUT>> output;
@@ -53,17 +57,17 @@ public class StreamTask<IN,OUT> extends Thread {
         this.mainOperator = mainOperator;
     }
 
-//    public void setOutput(BufferPool<StreamRecord<OUT>> output) {
-//        this.output = output;
-//    }
+    public BufferPool<StreamElement> getOutput() {
+        return output;
+    }
 
     public void setOutput(BufferPool<StreamElement> output) {
         this.output = output;
     }
 
-//    public void setInput(InputChannel<StreamRecord<IN>> input) {
-//        this.input = input;
-//    }
+    public void setEnvironment(RunTimeEnvironment environment) {
+        this.environment = environment;
+    }
 
     public void setInput(InputChannel<StreamElement> input) {
         this.input = input;
@@ -80,5 +84,11 @@ public class StreamTask<IN,OUT> extends Thread {
     
     public void setTaskCategory(String category) {
     	this.taskCategory = category;
+
+    //task完成checkpoint操作后，调用该方法通知全局运行环境自己已完成
+    public void sendAck(){
+        String name = Thread.currentThread().getName();
+        System.out.println(name + " send ack");
+        environment.receiveAck(name);
     }
 }

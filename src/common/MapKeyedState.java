@@ -4,6 +4,7 @@ import function.KeySelector;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,5 +44,10 @@ public class MapKeyedState<K,V> implements KeyedState<K,V> {
     @Override
     public Collection<V> get() {
         return map.values();
+    }
+
+    @Override
+    public void clear() {
+        map.clear();
     }
 }

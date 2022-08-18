@@ -9,7 +9,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 public class KafkaSender extends Thread{
 		String[] words = new String[]{"apple","banana","peach","watermelon","orange","grape","lemon"};
-		String topic = "test";
+		String topic = "zbw_test";
 		int count = 3; //一次发送几个单词
 	public KafkaSender() {
 	}
