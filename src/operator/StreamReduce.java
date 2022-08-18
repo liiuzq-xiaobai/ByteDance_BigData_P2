@@ -57,7 +57,6 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
     @Override
     public boolean snapshotState() {
         //在进行checkpoint操作前，需要获取当前的keystate数据
-
         //将当前的keystate状态存入文件
         //TODO 可优化为异步写入
 //        new Thread(() -> {
@@ -127,10 +126,10 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
     public Collection<T> copyKeyedState() {
         //由于进行快照时，keystate可能还会去处理数据，因此获取状态数据复制时要对keystate加锁
         Collection<T> current;
-        Collection<T> copyForCheckpoint = new ArrayList<>();
+        Collection<T> copyForCheckpoint;
         synchronized (valueState) {
             current = valueState.get();
-            copyForCheckpoint.addAll(current);
+            copyForCheckpoint = new ArrayList<>(current);
         }
         return copyForCheckpoint;
     }

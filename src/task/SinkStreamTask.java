@@ -34,9 +34,10 @@ public class SinkStreamTask<IN> extends StreamTask<IN,String> {
             //当SinkStreamTask拉到record数据，将数据输出到缓冲池
             if(inputElement.isRecord()){
                 StreamRecord<IN> inputRecord = inputElement.asRecord();
-                output.add(inputElement);
+                output.add(inputRecord);
             //当SinkStreamTask拉到checkpoint数据，意味着需要保存缓冲池的数据到result，
             } else if (inputElement.isCheckpoint()) {
+                System.out.println(name + "***receive Checkpoint****");
                 //如果此时result中已有checkpoint，那么就先将result中的数据写入到output文件
                 if (result.isCheckpointExist()) {
                     for (int i = 0; i < result.getList().size(); i++) {

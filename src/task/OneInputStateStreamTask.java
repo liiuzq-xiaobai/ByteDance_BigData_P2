@@ -63,6 +63,7 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
 //            output.push(outputData);
 
             //TODO 如果遇到checkpointbarrier，对该task进行状态快照
+            //TODO 处理barrier的对齐问题，reduce算子会收到mapParrellism个barrier数据
             else if(inputElement.isCheckpoint()){
                 //TODO 把keystate的数据持久化进文件
                 CheckPointBarrier barrier = inputElement.asCheckpoint();
