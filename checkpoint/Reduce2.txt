@@ -1,5 +1,5 @@
-r
-Tuple2{word=python, count=2}
-Tuple2{word=c++, count=2}
-Tuple2{word=golang, count=1}
-Tuple2{word=end, count=1}
+23
+{"f0":"python","f1":2}
+{"f0":"c++","f1":2}
+{"f0":"golang","f1":1}
+{"f0":"end","f1":1}

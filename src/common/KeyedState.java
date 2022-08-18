@@ -19,4 +19,6 @@ public interface KeyedState<K,V> extends ValueState<V> {
 
     Collection<V> get();
 
+    //清空状态中存储的数据
+    void clear();
 }

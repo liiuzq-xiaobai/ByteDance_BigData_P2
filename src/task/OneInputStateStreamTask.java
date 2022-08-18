@@ -6,6 +6,7 @@ import record.StreamRecord;
 import record.Watermark;
 import window.WindowAssigner;
 
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -59,6 +60,8 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
                 //TODO 把keystate的数据持久化进文件
                 CheckPointBarrier barrier = inputElement.asCheckpoint();
                 mainOperator.snapshotState();
+                int i = new Random().nextInt(3);
+                if(i==2) mainOperator.recoverState();
                 output.push(barrier);
             }
         }

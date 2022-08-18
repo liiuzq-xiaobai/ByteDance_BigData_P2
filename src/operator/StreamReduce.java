@@ -1,13 +1,15 @@
 package operator;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.sun.xml.internal.bind.v2.model.core.TypeRef;
 import function.KeySelector;
 import function.ReduceFunction;
 import record.StreamRecord;
+import record.Tuple2;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -39,7 +41,6 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
 
         T value = record.getValue();
         T newValue;
-//        synchronized (valueState){
         String key = keySelector.getKey(value);
         T currentValue = valueState.value(key);
         //初始值为空，不做操作
@@ -50,16 +51,15 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
         }
         //更新状态值
         valueState.update(newValue);
-//        }
         return newValue;
     }
 
     @Override
     public void snapshotState() {
-        //TODO 存储该算子所持有的keystate的当前数据
         //在进行checkpoint操作前，需要获取当前的keystate数据
         Collection<T> copyForCheckpoint = copyKeyedState();
-        //将当前的keystate状态存入文件，异步
+        //将当前的keystate状态存入文件
+        //TODO 可优化为异步写入
 //        new Thread(() -> {
             String name = Thread.currentThread().getName();
             String path = "checkpoint" + File.separator + name + ".txt";
@@ -72,7 +72,8 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
                 writer.write(String.valueOf(getId()));
                 writer.newLine();
                 for (T value : copyForCheckpoint) {
-                    writer.write(value.toString());
+                    String str = JSON.toJSONString(value);
+                    writer.write(str);
                     writer.newLine();
                 }
             } catch (IOException e) {
@@ -84,8 +85,41 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
                     e.printStackTrace();
                 }
             }
-            //TODO 还需要保存checkpoint的id
+            //TODO 还需要保存checkpoint的唯一标识id
 //        }, Thread.currentThread().getName() + "-CKP").start();
+    }
+
+    @Override
+    public void recoverState() {
+        //从指定文件中读取最新一次checkpoint保留的state数据
+        BufferedReader reader = null;
+        //先把keyedstate内容全部清空，再从文件恢复
+        //TODO 清空后再恢复可能会影响性能，需要改进
+        valueState.clear();
+        String name = Thread.currentThread().getName();
+        String path = "checkpoint" + File.separator + name + ".txt";
+        System.out.println(name + "【recover KeyedState】...");
+        try{
+            reader = new BufferedReader(new FileReader(path));
+            //先读取id，完善后可以删去
+            reader.readLine();
+            String line="";
+            while((line = reader.readLine()) != null){
+                System.out.println("read from file-------"+line);
+                T value = (T) JSONObject.parseObject(line,new TypeReference<Tuple2<String,Integer>>(){});
+                //恢复到所属的keystate
+                valueState.update(value);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println(name + "【recover KeyedState to】" + valueState.get());
     }
 
     public Collection<T> copyKeyedState() {

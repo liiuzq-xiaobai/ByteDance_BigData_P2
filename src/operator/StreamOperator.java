@@ -19,4 +19,7 @@ public abstract class StreamOperator<IN,OUT> {
 
     //算子存储状态快照的逻辑
     public abstract void snapshotState();
+
+    //算子根据保存的状态恢复的逻辑
+    public abstract void recoverState();
 }

@@ -45,4 +45,9 @@ public class MapKeyedState<K,V> implements KeyedState<K,V> {
     public Collection<V> get() {
         return map.values();
     }
+
+    @Override
+    public void clear() {
+        map.clear();
+    }
 }
