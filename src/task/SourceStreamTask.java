@@ -23,7 +23,7 @@ public class SourceStreamTask extends StreamTask<String, String> {
     static final String TOPIC = "test";
     static final String GROUP = "test_group3";
     public SourceStreamTask(){
-        super();
+        super("SOURCE");
     }
 
     @Override

@@ -15,6 +15,9 @@ import java.util.concurrent.TimeUnit;
 
 //用于处理诸如map、reduce等算子逻辑
 public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
+	 public OneInputStreamTask(){
+	        super("MAPPER");
+	}
 
     public KeySelector<StreamElement,String> keySelector;
 

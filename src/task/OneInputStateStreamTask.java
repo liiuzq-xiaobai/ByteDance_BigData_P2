@@ -14,6 +14,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
     WindowAssigner<StreamElement> windowAssigner;
+    public OneInputStateStreamTask(){
+        super("REDUCER");
+    }
 
     @Override
     public void run() {
