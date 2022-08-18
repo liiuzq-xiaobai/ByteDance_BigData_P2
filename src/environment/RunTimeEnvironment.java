@@ -47,4 +47,8 @@ public class RunTimeEnvironment extends Thread{
         }
 
     }
+
+    public void receiveAck(String name) {
+        System.out.println("Env receive ACK: " + name + "***checkpoint finished***");
+    }
 }

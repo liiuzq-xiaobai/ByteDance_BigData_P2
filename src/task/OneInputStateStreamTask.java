@@ -59,7 +59,9 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
             else if(inputElement.isCheckpoint()){
                 //TODO 把keystate的数据持久化进文件
                 CheckPointBarrier barrier = inputElement.asCheckpoint();
-                mainOperator.snapshotState();
+                //TODO 判断checkpoint是否成功
+                boolean isChecked = mainOperator.snapshotState();
+                if(isChecked) sendAck();
                 int i = new Random().nextInt(3);
                 if(i==2) mainOperator.recoverState();
                 output.push(barrier);

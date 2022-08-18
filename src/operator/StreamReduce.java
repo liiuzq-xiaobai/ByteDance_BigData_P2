@@ -55,9 +55,9 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
     }
 
     @Override
-    public void snapshotState() {
+    public boolean snapshotState() {
         //在进行checkpoint操作前，需要获取当前的keystate数据
-        Collection<T> copyForCheckpoint = copyKeyedState();
+
         //将当前的keystate状态存入文件
         //TODO 可优化为异步写入
 //        new Thread(() -> {
@@ -67,6 +67,7 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
             File file = new File(path);
             BufferedWriter writer = null;
             try {
+                Collection<T> copyForCheckpoint = copyKeyedState();
                 if (!file.exists()) file.createNewFile();
                 writer = new BufferedWriter(new FileWriter(file));
                 writer.write(String.valueOf(getId()));
@@ -78,6 +79,7 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                return false;
             } finally {
                 try {
                     writer.close();
@@ -87,6 +89,7 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
             }
             //TODO 还需要保存checkpoint的唯一标识id
 //        }, Thread.currentThread().getName() + "-CKP").start();
+        return true;
     }
 
     @Override
@@ -105,7 +108,6 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
             reader.readLine();
             String line="";
             while((line = reader.readLine()) != null){
-                System.out.println("read from file-------"+line);
                 T value = (T) JSONObject.parseObject(line,new TypeReference<Tuple2<String,Integer>>(){});
                 //恢复到所属的keystate
                 valueState.update(value);

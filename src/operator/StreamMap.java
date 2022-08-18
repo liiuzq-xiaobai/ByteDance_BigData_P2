@@ -26,7 +26,8 @@ public class StreamMap<IN,OUT> extends OneInputStreamOperator<IN,OUT,MapFunction
     }
 
     @Override
-    public void snapshotState() {
+    public boolean snapshotState() {
+        return true;
     }
 
     @Override

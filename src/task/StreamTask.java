@@ -1,6 +1,7 @@
 package task;
 
 import common.KeyedState;
+import environment.RunTimeEnvironment;
 import environment.StreamExecutionEnvironment;
 import io.BufferPool;
 import io.InputChannel;
@@ -20,7 +21,7 @@ import java.util.List;
 public class StreamTask<IN,OUT> extends Thread {
 
     //task属于一个运行环境
-    protected StreamExecutionEnvironment environment;
+    protected RunTimeEnvironment environment;
 
     //当前task生产的数据放到Buffer中
 //    protected BufferPool<StreamRecord<OUT>> output;
@@ -59,6 +60,10 @@ public class StreamTask<IN,OUT> extends Thread {
         this.output = output;
     }
 
+    public void setEnvironment(RunTimeEnvironment environment) {
+        this.environment = environment;
+    }
+
     public void setInput(InputChannel<StreamElement> input) {
         this.input = input;
     }
@@ -66,5 +71,12 @@ public class StreamTask<IN,OUT> extends Thread {
     //设置线程名
     public void name(String name){
         super.setName(name);
+    }
+
+    //task完成checkpoint操作后，调用该方法通知全局运行环境自己已完成
+    public void sendAck(){
+        String name = Thread.currentThread().getName();
+        System.out.println(name + " send ack");
+        environment.receiveAck(name);
     }
 }
