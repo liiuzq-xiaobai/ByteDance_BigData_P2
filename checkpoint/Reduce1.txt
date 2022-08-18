@@ -1,0 +1,5 @@
+h
+Tuple2{word=flink, count=2}
+Tuple2{word=java, count=3}
+Tuple2{word=yyds, count=1}
+Tuple2{word=hello, count=3}

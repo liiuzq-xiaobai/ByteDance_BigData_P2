@@ -1,0 +1,5 @@
+r
+Tuple2{word=python, count=2}
+Tuple2{word=c++, count=2}
+Tuple2{word=golang, count=1}
+Tuple2{word=end, count=1}

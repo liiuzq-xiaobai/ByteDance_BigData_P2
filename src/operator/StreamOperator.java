@@ -3,6 +3,8 @@ package operator;
 import record.StreamRecord;
 import task.StreamTask;
 
+
+
 /**
  * @author kevin.zeng
  * @description
@@ -14,4 +16,7 @@ public abstract class StreamOperator<IN,OUT> {
     protected StreamTask<?,?> container;
 
     public abstract OUT processElement(StreamRecord<IN> record);
+
+    //算子存储状态快照的逻辑
+    public abstract void snapshotState();
 }

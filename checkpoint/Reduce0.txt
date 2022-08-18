@@ -1,0 +1,4 @@
+v
+Tuple2{word=rust, count=1}
+Tuple2{word=world, count=2}
+Tuple2{word=sql, count=2}

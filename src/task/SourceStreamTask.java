@@ -6,6 +6,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import record.CheckPointBarrier;
 import record.StreamRecord;
 import record.Watermark;
 
@@ -20,8 +21,8 @@ import java.util.concurrent.TimeUnit;
  * @create 2022-08-12
  */
 public class SourceStreamTask extends StreamTask<String, String> {
-    static final String TOPIC = "test";
-    static final String GROUP = "test_group3";
+    static final String TOPIC = "zbw_test";
+    static final String GROUP = "zbw_test_group";
     public SourceStreamTask(){
         super();
     }
@@ -65,6 +66,8 @@ public class SourceStreamTask extends StreamTask<String, String> {
 
                     Watermark watermark = new Watermark();
                     output.push(watermark);
+                    CheckPointBarrier barrier = new CheckPointBarrier();
+                    output.push(barrier);
                     System.out.println(name + " produce: " + obj);
                 }
             }

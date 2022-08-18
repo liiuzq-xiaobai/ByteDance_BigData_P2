@@ -219,7 +219,7 @@ public class MainProgram {
         reduceTaskList.forEach(environment::addTask);
 
         //****开始运行
-        environment.start();
+//        environment.start();
         //map算子
         for (int i = 0; i < mapParrellism; i++) {
             mapTaskList.get(i).start();

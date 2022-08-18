@@ -7,6 +7,9 @@ import io.InputChannel;
 import operator.StreamOperator;
 import record.StreamElement;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.List;
 
 /**
@@ -48,17 +51,13 @@ public class StreamTask<IN,OUT> extends Thread {
         this.mainOperator = mainOperator;
     }
 
-//    public void setOutput(BufferPool<StreamRecord<OUT>> output) {
-//        this.output = output;
-//    }
+    public BufferPool<StreamElement> getOutput() {
+        return output;
+    }
 
     public void setOutput(BufferPool<StreamElement> output) {
         this.output = output;
     }
-
-//    public void setInput(InputChannel<StreamRecord<IN>> input) {
-//        this.input = input;
-//    }
 
     public void setInput(InputChannel<StreamElement> input) {
         this.input = input;

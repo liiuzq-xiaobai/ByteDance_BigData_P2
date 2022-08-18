@@ -2,6 +2,7 @@ package common;
 
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author kevin.zeng

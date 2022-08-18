@@ -1,5 +1,6 @@
 package task;
 
+import record.CheckPointBarrier;
 import record.StreamElement;
 import record.StreamRecord;
 import record.Watermark;
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit;
  * @description
  * @create 2022-08-12
  */
+//处理带状态的算子逻辑，如reduce
 public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
     WindowAssigner<StreamElement> windowAssigner;
 
@@ -51,6 +53,14 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
             //如果到了时间，将状态后端的所有数据放入buffer
             //放入当前Task的缓冲池，推向下游
 //            output.push(outputData);
+
+            //TODO 如果遇到checkpointbarrier，对该task进行状态快照
+            else if(inputElement.isCheckpoint()){
+                //TODO 把keystate的数据持久化进文件
+                CheckPointBarrier barrier = inputElement.asCheckpoint();
+                mainOperator.snapshotState();
+                output.push(barrier);
+            }
         }
     }
 
