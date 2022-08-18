@@ -6,8 +6,11 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import record.CheckPointBarrier;
+import record.CheckPointRecord;
 import record.StreamRecord;
 import record.Watermark;
+import utils.WriteCheckPointUtils;
 
 import java.sql.Time;
 import java.time.Duration;
@@ -25,7 +28,16 @@ public class SourceStreamTask extends StreamTask<String, String> {
     public SourceStreamTask(){
         super();
     }
-
+    public boolean nowSnapshot = false;
+    public synchronized boolean sendCheckPointBarrier(){
+        try{
+            nowSnapshot = true;
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
     @Override
     public void run() {
         String name = Thread.currentThread().getName();
@@ -56,16 +68,22 @@ public class SourceStreamTask extends StreamTask<String, String> {
             while(true){
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
                 for (ConsumerRecord<String, String> record:records) {
-                    String obj = record.value();
-                    //每隔1s向下游传递一条数据
-                    TimeUnit.MILLISECONDS.sleep(1000);
-                    StreamRecord<String> streamRecord = new StreamRecord<>(obj);
-                    //放入下游的Buffer中，并将数据推向下游算子的输入管道
-                    output.push(streamRecord);
-
-                    Watermark watermark = new Watermark();
-                    output.push(watermark);
-                    System.out.println(name + " produce: " + obj);
+                    //System.out.printf("value:{%s},offset:{%s}",record.value(),record.offset());
+                    if(nowSnapshot == true){
+                        CheckPointRecord sourceckpoint = new CheckPointRecord("Source",this.getName(),record.offset(),this.getState().toString());
+                        WriteCheckPointUtils.writeCheckPointFile("checkpoint/source.txt",sourceckpoint);
+                        nowSnapshot = false;
+                    }else{
+                        String obj = record.value();
+                        //每隔1s向下游传递一条数据
+                        TimeUnit.MILLISECONDS.sleep(1000);
+                        StreamRecord<String> streamRecord = new StreamRecord<>(obj);
+                        //放入下游的Buffer中，并将数据推向下游算子的输入管道
+                        output.push(streamRecord);
+                        Watermark watermark = new Watermark();
+                        output.push(watermark);
+                        System.out.println(name + " produce: " + obj);
+                    }
                 }
             }
         }catch(Exception e) {

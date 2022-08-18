@@ -28,6 +28,7 @@ public class BufferPool<T extends StreamElement> {
 
     private boolean isPartition;
 
+    private long bufferId;
     public List<T> getList() {
         return list;
     }
@@ -108,5 +109,9 @@ public class BufferPool<T extends StreamElement> {
     //为当前数据源绑定一个下游输出
     public void bindInputChannel(List<InputChannel<T>> channels){
         this.channels = channels;
+    }
+
+    public long getBufferId() {
+        return bufferId;
     }
 }
