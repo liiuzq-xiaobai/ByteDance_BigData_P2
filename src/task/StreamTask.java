@@ -125,13 +125,17 @@ public class StreamTask<IN, OUT> extends Thread {
         return barrierCount != 0;
     }
 
-    //当barrier到达时，task的处理逻辑
-    public void processBarrier(CheckPointBarrier barrier) {
-        //当前barrier为空 或 与当前barrier的id相同的话，barrier计数加1
+    //当前barrier为空 或 与当前barrier的id相同的话，barrier计数加1
+    public void setBarrierCount(CheckPointBarrier barrier){
         if (currentBarrier == null || currentBarrier.equals(barrier)) {
             if (currentBarrier == null) currentBarrier = barrier;
             barrierCount++;
         }
+    }
+
+    //当barrier到达时，task的处理逻辑
+    public void processBarrier(CheckPointBarrier barrier) {
+        setBarrierCount(barrier);
         //TODO 等待所有barrier全部到齐，才能执行snapshot
         if (isBarrierAligned()) {
             System.out.println(getName() + "【checkpoint aligned!!】");
