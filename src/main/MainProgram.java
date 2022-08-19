@@ -38,6 +38,8 @@ public class MainProgram {
 
     //TODO 相当于execute中的内容
     public static void main(String[] args) throws Exception {
+    	//****创建全局运行环境
+        RunTimeEnvironment environment = new RunTimeEnvironment();
 
         //****读取配置文件
         Properties props = new Properties();
@@ -78,12 +80,15 @@ public class MainProgram {
         ExecutionJobVertex<String, Tuple2<String, Integer>> vertex = new ExecutionJobVertex<>();
         //创建map算子，声明key选择器
         OneInputStreamOperator<String, Tuple2<String, Integer>, MapFunction<String, Tuple2<String, Integer>>> mapper = new StreamMap<>(mapFunction);
+        environment.setMapper(mapper);
         //运行节点中包含的运行实例task
         List<StreamTask<String, Tuple2<String, Integer>>> mapTaskList = new ArrayList<>();
         vertex.setTasks(mapTaskList);
+        environment.setMapTaskList(mapTaskList);
         //source算子绑定下游输出Buffer
         BufferPool<StreamElement> sourceBuffer = new BufferPool<>();
         consumer.setOutput(sourceBuffer);
+        environment.setSourceBuffer(sourceBuffer);
         //map算子的channel集合
         List<InputChannel<StreamElement>> mapChannel = new ArrayList<>();
         //channel输入集合要和上游task的buffer绑定，以实现并行
@@ -119,7 +124,12 @@ public class MainProgram {
             mapChannel.add(input);
             //放入运行实例集合
             mapTaskList.add(mapTask);
+            environment.addTask(mapTask);
         }
+        
+        environment.setMapChannel(mapChannel);
+        environment.setMapBuffer(mapBuffer);
+        environment.setKeySelector1(keySelector1);
 
 
         //****连接map和reduce算子
@@ -132,20 +142,24 @@ public class MainProgram {
             reducer.setValueState(new MapKeyedState<>(keySelector));
             reducerList.add(reducer);
         }
+        environment.setReducerList(reducerList);
         //reduce算子的运行节点
         ExecutionJobVertex<Tuple2<String, Integer>, Tuple2<String, Integer>> reduceVertex = new ExecutionJobVertex<>();
         //运行节点中包含的运行实例task
         List<StreamTask<Tuple2<String, Integer>, Tuple2<String, Integer>>> reduceTaskList = new ArrayList<>();
         reduceVertex.setTasks(reduceTaskList);
+        environment.setReduceTaskList(reduceTaskList);
         //reduce算子的channel集合
         List<InputChannel<StreamElement>> reduceChannel = new ArrayList<>();
         for (int i = 0; i < mapParrellism; i++) {
             //map的每一个buffer都绑定reduce算子的所有input管道，按哈希值%管道数进行shuffle
             mapBuffer.get(i).bindInputChannel(reduceChannel);
         }
+        environment.setReduceChannel(reduceChannel);
         //
         //reduce算子的buffer集合
         List<BufferPool<StreamElement>> reduceBuffer = new ArrayList<>();
+        environment.setReduceBuffer(reduceBuffer);
         //channel输入集合要和上游task的buffer绑定，以实现并行
         //根据下游的并行度设置InputChannel
         for (int i = 0; i < reduceParrellism; i++) {
@@ -171,6 +185,7 @@ public class MainProgram {
             reduceChannel.add(input);
             //放入运行实例集合
             reduceTaskList.add(reduceTask);
+            environment.addTask(reduceTask);
         }
 
 ////      以前的
@@ -188,20 +203,26 @@ public class MainProgram {
 
         //为sink算子创建识别到checkpoint后保存数据的容器
         SinkBufferPool result = new SinkBufferPool();
+        environment.setResult(result);
         SinkStreamTask<Tuple2<String, Integer>> sinkTask = new SinkStreamTask<>(result);
         //为sink算子绑定下游输出Buffer
+        /*
         BufferPool<StreamElement> sinkBuffer = new BufferPool<>();
         sinkTask.setOutput(sinkBuffer);
+        environment.setSinkBuffer(sinkBuffer);
+        */
         //task命名
         sinkTask.name("Sink");
         //创建输入管道
         InputChannel<StreamElement> sinkInput = new InputChannel<>();
         sinkTask.setInput(sinkInput);
+        environment.setSinkInput(sinkInput);
         //为sink的inputChannel绑定数据源buffer
         sinkInput.bindProviderBuffer(reduceBuffer);
         //为sink算子创建并绑定输出池
         BufferPool<StreamElement> sinkBufferPool = new BufferPool<>();
         sinkTask.setOutput(sinkBufferPool);
+        environment.setSinkBuffer(sinkBufferPool);
 
         /*TODO 当前数据传输方式为 Buffer push数据 到InputChannel
                 是否需要改成InputChannel 从 上游Buffer拉取数据
@@ -212,11 +233,11 @@ public class MainProgram {
         }
 
         //****创建全局运行环境
-        RunTimeEnvironment environment = new RunTimeEnvironment();
-        environment.addTasks(Collections.singletonList(consumer));
-        environment.addTasks(Collections.singletonList(sinkTask));
-        mapTaskList.forEach(environment::addTask);
-        reduceTaskList.forEach(environment::addTask);
+        //RunTimeEnvironment environment = new RunTimeEnvironment();
+        //environment.addTasks(Collections.singletonList(consumer));
+        //environment.addTasks(Collections.singletonList(sinkTask));
+        //mapTaskList.forEach(environment::addTask);
+        //reduceTaskList.forEach(environment::addTask);
         //所有task绑定全局运行环境
         consumer.setEnvironment(environment);
         sinkTask.setEnvironment(environment);

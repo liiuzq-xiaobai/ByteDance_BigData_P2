@@ -84,6 +84,7 @@ public class StreamTask<IN,OUT> extends Thread {
     
     public void setTaskCategory(String category) {
     	this.taskCategory = category;
+    }
 
     //task完成checkpoint操作后，调用该方法通知全局运行环境自己已完成
     public void sendAck(){
