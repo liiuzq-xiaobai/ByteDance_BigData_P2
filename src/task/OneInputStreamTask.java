@@ -64,9 +64,7 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
                 output.push(systemWatermark);
             }else if(inputElement.isCheckpoint()){
                 CheckPointBarrier barrier = inputElement.asCheckpoint();
-                boolean isChecked = mainOperator.snapshotState();
-                if(isChecked) sendAck();
-                output.push(barrier);
+                processBarrier(barrier);
             }
             /*TODO 如果遇到barrier类型数据，保存其下游Buffer当前的数据内容
                (范围可以是上一个barrier保存的数据~当前数据)

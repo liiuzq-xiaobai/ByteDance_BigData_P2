@@ -17,9 +17,11 @@ import java.util.concurrent.TimeUnit;
 //处理带状态的算子逻辑，如reduce
 public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
     WindowAssigner<StreamElement> windowAssigner;
-    public OneInputStateStreamTask(){
+
+    public OneInputStateStreamTask() {
         super("REDUCER");
     }
+
     private Watermark systemWatermark;
 
     @Override
@@ -39,7 +41,7 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
                 StreamRecord<IN> inputRecord = inputElement.asRecord();
                 //调用处理逻辑
                 //watermark过滤掉过期是数据
-                if(systemWatermark != null && inputRecord.getTimestamp() < systemWatermark.getTimestamp()){
+                if (systemWatermark != null && inputRecord.getTimestamp() < systemWatermark.getTimestamp()) {
                     System.out.println(name + "ignore a expired record");
                     continue;
                 }
@@ -54,12 +56,23 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
                 }
 
                 System.out.println(name + " process result: " + outputData);
-                output.push(outputData);
+                //TODO 未对齐，数据暂存缓冲池
+                if (isBarrierAligend()) output.push(outputData);
+                else {
+                    //暂存缓冲池逻辑
+                    temporaryStorage(outputData);
+                }
+
                 System.out.println(name + " write into BufferPool");
             } else if (inputElement.isWatermark()) {
                 System.out.println(name + " process 【Watermark】!!");
                 systemWatermark = inputElement.asWatermark();
-                output.push(systemWatermark);
+
+                if (isBarrierAligend()) output.push(systemWatermark);
+                else {
+
+                }
+
             }
             //如果到了时间，将状态后端的所有数据放入buffer
             //放入当前Task的缓冲池，推向下游
@@ -67,15 +80,12 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
 
             //TODO 如果遇到checkpointbarrier，对该task进行状态快照
             //TODO 处理barrier的对齐问题，reduce算子会收到mapParrellism个barrier数据
-            else if(inputElement.isCheckpoint()){
-                //TODO 把keystate的数据持久化进文件
+            //此时快的Barrier到达下游算子后，此Barrier之后到达的数据将会放到缓冲区，不会进行处理。
+            //等到其他流慢的Barrier到达后，此算子才进行checkpoint，然后把状态保存到状态后端
+            else if (inputElement.isCheckpoint()) {
                 CheckPointBarrier barrier = inputElement.asCheckpoint();
-                //TODO 判断checkpoint是否成功
-                boolean isChecked = mainOperator.snapshotState();
-                if(isChecked) sendAck();
-                int i = new Random().nextInt(3);
-                if(i==2) mainOperator.recoverState();
-                output.push(barrier);
+                if(name.equals("Reduce2") || name.equals("Reduce1")) continue;
+                processBarrier(barrier);
             }
         }
     }

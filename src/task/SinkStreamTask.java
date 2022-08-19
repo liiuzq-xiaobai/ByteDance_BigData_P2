@@ -67,6 +67,7 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
                 System.out.println(name + "***receive Checkpoint****");
                 result.copyExistingBuffer(output);
                 System.out.println("result receive Checkpoint" + ", right now result size: " + result.getList().size());
+                System.out.println("result receive Checkpoint" + ", right now result: " + result.getList());
                 //当result完成对缓冲池的copy后，原缓冲池的数据就可以删除了，避免下次再次copy
                 output.getList().clear();
             }
