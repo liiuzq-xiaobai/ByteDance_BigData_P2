@@ -2,21 +2,16 @@ package task;
 
 import common.KeyedState;
 import environment.RunTimeEnvironment;
-import environment.StreamExecutionEnvironment;
 import io.BufferPool;
 import io.InputChannel;
 import operator.StreamOperator;
-import operator.StreamReduce;
 import record.CheckPointBarrier;
 import record.StreamElement;
 import record.StreamRecord;
+import record.Watermark;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author kevin.zeng
@@ -50,6 +45,8 @@ public class StreamTask<IN, OUT> extends Thread {
 
     //task所属的外层节点
     protected ExecutionJobVertex<IN, OUT> vertex;
+
+    protected Watermark systemWatermark;
 
     //task上游的节点个数，用于barrier对齐
     protected int inputParrellism;

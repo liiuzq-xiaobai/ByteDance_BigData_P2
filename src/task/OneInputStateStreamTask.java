@@ -3,7 +3,6 @@ package task;
 import record.CheckPointBarrier;
 import record.StreamElement;
 import record.StreamRecord;
-import record.Watermark;
 import window.WindowAssigner;
 
 import java.util.concurrent.TimeUnit;
@@ -21,8 +20,6 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
     public OneInputStateStreamTask() {
         super("REDUCER");
     }
-
-    private Watermark systemWatermark;
 
     @Override
     public void run() {
@@ -44,7 +41,8 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
                     //调用处理逻辑
                     //watermark过滤掉过期是数据
                     if (systemWatermark != null && inputRecord.getTimestamp() < systemWatermark.getTimestamp()) {
-                        System.out.println(name + "ignore a expired record");
+                        System.out.println(name + "【current time】" + systemWatermark.getTimestamp());
+                        System.out.println(name + "【ignore a expired record!!!】" + inputRecord);
                         continue;
                     }
 
@@ -68,8 +66,7 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
                 //如果到了时间，将状态后端的所有数据放入buffer
                 //放入当前Task的缓冲池，推向下游
 
-                //TODO 如果遇到checkpointbarrier，对该task进行状态快照
-                //TODO 处理barrier的对齐问题，reduce算子会收到mapParrellism个barrier数据
+                //如果遇到checkpointbarrier，对该task进行状态快照
                 //此时快的Barrier到达下游算子后，此Barrier之后到达的数据将会放到缓冲区，不会进行处理。
                 //等到其他流慢的Barrier到达后，此算子才进行checkpoint，然后把状态保存到状态后端
                 else if (inputElement.isCheckpoint()) {
@@ -84,8 +81,13 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
                 System.out.println(name + "【at checkpoint status】");
                 //如果输入数据为barrier类型，调用处理barrier的方法
                 if (inputElement.isCheckpoint()) {
-                    System.out.println(name + "【receive checkpoint; count: "+(barrierCount+1));
+                    //如果此次的checkpoint与当前task持有的checkpoint不相同，直接丢弃
                     CheckPointBarrier barrier = inputElement.asCheckpoint();
+                    if(!barrier.equals(currentBarrier)){
+                        System.out.println(name + "【checkpoint conflict!】");
+                        continue;
+                    }
+                    System.out.println(name + "【receive checkpoint; count: "+(barrierCount+1));
                     processBarrier(barrier);
                 }
                 //非barrier类型，缓存起来

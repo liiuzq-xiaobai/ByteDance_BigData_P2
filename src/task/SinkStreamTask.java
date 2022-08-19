@@ -7,8 +7,6 @@ import record.StreamRecord;
 import utils.SinkUtils;
 
 import java.io.IOException;
-import java.sql.Time;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -37,7 +35,7 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
                 StreamRecord<IN> inputRecord = inputElement.asRecord();
                 output.add(inputRecord);
                 System.out.println(name + "***receive record****");
-                System.out.println("result receive Recou" + ", right now result size: " + result.getList().size());
+                System.out.println("result receive Record" + ", right now result size: " + result.getList().size());
                 //当SinkStreamTask拿到checkpoint数据，意味着需要保存缓冲池的数据到result，
             } else if (inputElement.isCheckpoint()) {
                 System.out.println("test: sink 拿到checkpoint");

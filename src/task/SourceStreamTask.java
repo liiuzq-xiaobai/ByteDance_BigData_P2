@@ -83,11 +83,14 @@ public class SourceStreamTask extends StreamTask<String, String> {
                     //更新offset位置
                     topicPartition = new TopicPartition(record.topic(), record.partition());
                     currentOffsets.put(topicPartition, new OffsetAndMetadata(record.offset() + 1,"no matadata"));
-                    Watermark watermark = new Watermark();
-//                    output.push(watermark);
-                    //TODO source算子手动发送barrier，每三条发一次
+                    //watermark每两条发一次
+                    if(counter % 2 == 0){
+                        Watermark watermark = new Watermark();
+                        output.push(watermark);
+                    }
+                    //TODO source算子手动发送barrier，每4条发一次
                     TimeUnit.MILLISECONDS.sleep(1000);
-                    if(counter % 3 == 0){
+                    if(counter % 4 == 0){
                         //保存offset，提交consumer的消费记录
                         CheckPointRecord sourceckpoint = new CheckPointRecord("Source",this.getName(),record.offset(),this.getState().toString());
                         WriteCheckPointUtils.writeCheckPointFile("checkpoint/source.txt",sourceckpoint);
@@ -108,7 +111,7 @@ public class SourceStreamTask extends StreamTask<String, String> {
     }
 
 
-    public static void main(String args[]) throws InterruptedException {
+    public static void main(String args[]) {
         SourceStreamTask receiver = new SourceStreamTask();
         receiver.start();
     }

@@ -5,8 +5,6 @@ import function.KeySelector;
 import record.StreamElement;
 import record.StreamRecord;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -28,6 +26,7 @@ public class BufferPool<T extends StreamElement> {
 
     private boolean isPartition;
 
+    private int index = 0;
     public List<T> getList() {
         return list;
     }
@@ -86,9 +85,10 @@ public class BufferPool<T extends StreamElement> {
                 channel.add(data);
             }
         } else if (keySelector == null) {
-            //没有分区需求，随机放置
-            channelIndex = random.nextInt(channels.size());
+            //没有分区需求，轮询放置
+            channelIndex = index;
             channels.get(channelIndex).add(data);
+            index = (index+1) % channels.size();
         } else {
             if (data.isRecord()) {
                 //如果是StreamRecord类型且有分区需求，根据哈希值放入对应

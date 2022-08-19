@@ -3,7 +3,6 @@ package operator;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import com.sun.xml.internal.bind.v2.model.core.TypeRef;
 import function.KeySelector;
 import function.ReduceFunction;
 import record.StreamRecord;
@@ -68,12 +67,13 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
             try {
                 Collection<T> copyForCheckpoint = copyKeyedState();
                 if (!file.exists()) file.createNewFile();
-                writer = new BufferedWriter(new FileWriter(file));
+                writer = new BufferedWriter(new FileWriter(file,true));
                 for (T value : copyForCheckpoint) {
                     String str = JSON.toJSONString(value);
                     writer.write(str);
                     writer.newLine();
                 }
+                writer.newLine();
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;
