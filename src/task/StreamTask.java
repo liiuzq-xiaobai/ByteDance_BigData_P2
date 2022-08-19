@@ -112,7 +112,7 @@ public class StreamTask<IN, OUT> extends Thread {
     }
 
     //判断当前task的barrier是否到齐
-    public boolean isBarrierAligend() {
+    public boolean isBarrierAligned() {
         if(barrierCount == inputParrellism){
             barrierCount = 0;
             return true;
@@ -133,7 +133,7 @@ public class StreamTask<IN, OUT> extends Thread {
             barrierCount++;
         }
         //TODO 等待所有barrier全部到齐，才能执行snapshot
-        if (isBarrierAligend()) {
+        if (isBarrierAligned()) {
             System.out.println(getName() + "【checkpoint aligned!!】");
             boolean isChecked = mainOperator.snapshotState();
             //如果成功，向全局环境发送ACK
