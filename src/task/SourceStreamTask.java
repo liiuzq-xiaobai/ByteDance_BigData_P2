@@ -75,17 +75,19 @@ public class SourceStreamTask extends StreamTask<String, String> {
                     counter++;
                     String obj = record.value();
                     //每隔1s向下游传递一条数据
-                    TimeUnit.MILLISECONDS.sleep(1000);
+//                    TimeUnit.MILLISECONDS.sleep(1000);
                     StreamRecord<String> streamRecord = new StreamRecord<>(obj);
+                    System.out.println(name + " produce: " + obj);
                     //放入下游的Buffer中，并将数据推向下游算子的输入管道
                     output.push(streamRecord);
                     //更新offset位置
                     topicPartition = new TopicPartition(record.topic(), record.partition());
                     currentOffsets.put(topicPartition, new OffsetAndMetadata(record.offset() + 1,"no matadata"));
                     Watermark watermark = new Watermark();
-                    output.push(watermark);
-                    //TODO source算子手动发送barrier，每五条发一次
-                    if(counter % 5 == 0){
+//                    output.push(watermark);
+                    //TODO source算子手动发送barrier，每三条发一次
+                    TimeUnit.MILLISECONDS.sleep(1000);
+                    if(counter % 3 == 0){
                         //保存offset，提交consumer的消费记录
                         CheckPointRecord sourceckpoint = new CheckPointRecord("Source",this.getName(),record.offset(),this.getState().toString());
                         WriteCheckPointUtils.writeCheckPointFile("checkpoint/source.txt",sourceckpoint);
@@ -96,7 +98,7 @@ public class SourceStreamTask extends StreamTask<String, String> {
                         output.push(barrier);
                     }
 
-                    System.out.println(name + " produce: " + obj);
+
                 }
             }
         }catch(Exception e) {

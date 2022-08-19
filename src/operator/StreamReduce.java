@@ -69,8 +69,6 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
                 Collection<T> copyForCheckpoint = copyKeyedState();
                 if (!file.exists()) file.createNewFile();
                 writer = new BufferedWriter(new FileWriter(file));
-                writer.write(String.valueOf(getId()));
-                writer.newLine();
                 for (T value : copyForCheckpoint) {
                     String str = JSON.toJSONString(value);
                     writer.write(str);

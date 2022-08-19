@@ -81,7 +81,7 @@ public class BufferPool<T extends StreamElement> {
         int channelIndex;
         //checkpoint数据，发送到所有管道
         if (data.isCheckpoint()) {
-            System.out.println("****push checkpoint");
+            System.out.println(Thread.currentThread().getName() + "****push checkpoint");
             for (InputChannel<T> channel : channels) {
                 channel.add(data);
             }

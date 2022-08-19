@@ -59,6 +59,10 @@ public class InputChannel<T extends StreamElement> {
         this.provider = provider;
     }
 
+    public int getInputParrellism(){
+        return provider.size();
+    }
+
     public void bindExecutionVertex(ExecutionJobVertex<?,?> vertex){
         this.vertex=vertex;
     }

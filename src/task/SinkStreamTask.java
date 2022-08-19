@@ -30,7 +30,6 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
         while (true) {
             //从InputChannel读取数据
             StreamElement inputElement = this.input.take();
-            System.out.println(name + " read from InputChannel");
             //判断拉取数据的类型
             //当SinkStreamTask拿到record数据，将数据输出到缓冲池
             if (inputElement.isRecord()) {
@@ -38,6 +37,7 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
                 StreamRecord<IN> inputRecord = inputElement.asRecord();
                 output.add(inputRecord);
                 System.out.println(name + "***receive record****");
+                System.out.println("result receive Recou" + ", right now result size: " + result.getList().size());
                 //当SinkStreamTask拿到checkpoint数据，意味着需要保存缓冲池的数据到result，
             } else if (inputElement.isCheckpoint()) {
                 System.out.println("test: sink 拿到checkpoint");
