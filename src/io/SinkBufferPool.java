@@ -5,15 +5,17 @@ import record.StreamElement;
 
 import java.util.ArrayList;
 
-public class SinkBufferPool extends BufferPool{
-    public BufferPool<StreamElement> copyExistingBuffer(BufferPool<StreamElement> existingBuffer) {
-        return existingBuffer;
+public class SinkBufferPool<T extends StreamElement> extends BufferPool{
+    public void copyExistingBuffer(BufferPool<T> existingBuffer) {
+        this.getList().addAll(existingBuffer.getList());
     }
     public boolean isCheckpointExist() {
         int poolSize = this.getList().size();
+        //有可能在读到数据之前读到checkpoint，此时result中没有元素（读到的checkpoint还没放进去）
+        if (poolSize == 0) return false;
         //判断result最后一个元素是不是checkpoint
-        //TODO 有可能已经没有数据读了，只有checkpoint在不停发送了，此时就会get（-1），以后再考虑
-        return this.getList().get(poolSize - 1).getClass() == CheckPointBarrier.class;
+        StreamElement element = (StreamElement) this.getList().get(poolSize - 1);
+        return element.isCheckpoint();
     }
 
 

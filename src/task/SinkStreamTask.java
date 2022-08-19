@@ -29,35 +29,35 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
         String name = Thread.currentThread().getName();
         while (true) {
             //从InputChannel读取数据
-            System.out.println(name + " read from InputChannel");
             StreamElement inputElement = this.input.take();
+            System.out.println(name + " read from InputChannel");
             //判断拉取数据的类型
             //当SinkStreamTask拿到record数据，将数据输出到缓冲池
             if (inputElement.isRecord()) {
                 System.out.println("test: sink 拿到record");
                 StreamRecord<IN> inputRecord = inputElement.asRecord();
                 output.add(inputRecord);
+                System.out.println(name + "***receive record****");
                 //当SinkStreamTask拿到checkpoint数据，意味着需要保存缓冲池的数据到result，
             } else if (inputElement.isCheckpoint()) {
                 System.out.println("test: sink 拿到checkpoint");
                 //如果此时result中已有checkpoint，那么就先将result中的数据写入到output文件
                 if (result.isCheckpointExist()) {
-                    System.out.println("sink test");
+                    System.out.println("result 尝试写入文件开始...");
                     for (int i = 0; i < result.getList().size(); i++) {
                         StreamElement input = (StreamElement) result.getList().get(i);
-                        if (input.isCheckpoint()) {
-                            result.getList().remove(input);
-                        } else if (input.isRecord()) {
+                        if (input.isRecord()) {
                             StreamRecord inputRecord = input.asRecord();
                             //写入文件，并删除result中已写过的数据
                             IN value = (IN) inputRecord.getValue();
                             try {
                                 SinkUtils.writeIntoFile("output/wordcount.txt", inputRecord);
-                                result.getList().remove(inputRecord);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                             System.out.println(name + " 【print value】" + value);
+                        } else if (input.isCheckpoint() && i != 0) {
+                            result.getList().clear();
                         }
                     }
                 }
@@ -66,6 +66,7 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
                 output.add(inputElement);
                 System.out.println(name + "***receive Checkpoint****");
                 result.copyExistingBuffer(output);
+                System.out.println("result receive Checkpoint" + ", right now result size: " + result.getList().size());
                 //当result完成对缓冲池的copy后，原缓冲池的数据就可以删除了，避免下次再次copy
                 output.getList().clear();
             }
