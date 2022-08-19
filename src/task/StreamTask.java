@@ -19,6 +19,7 @@ import java.util.List;
  * @create 2022-08-12
  */
 public class StreamTask<IN,OUT> extends Thread {
+	protected String taskCategory = null;
 
     //task属于一个运行环境
     protected RunTimeEnvironment environment;
@@ -47,6 +48,10 @@ public class StreamTask<IN,OUT> extends Thread {
 
     public StreamTask(){
     }
+    
+    public StreamTask(String taskCategory){
+    	this.taskCategory = taskCategory;
+    }
 
     public void setMainOperator(StreamOperator<IN,OUT> mainOperator){
         this.mainOperator = mainOperator;
@@ -71,6 +76,14 @@ public class StreamTask<IN,OUT> extends Thread {
     //设置线程名
     public void name(String name){
         super.setName(name);
+    }
+    
+    public String getTaskCategory() {
+    	return this.taskCategory;
+    }
+    
+    public void setTaskCategory(String category) {
+    	this.taskCategory = category;
     }
 
     //task完成checkpoint操作后，调用该方法通知全局运行环境自己已完成

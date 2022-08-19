@@ -23,7 +23,7 @@ public class SourceStreamTask extends StreamTask<String, String> {
     static final String GROUP = "zbw_test_group";
     int counter=0;
     public SourceStreamTask(){
-        super();
+        super("SOURCE");
     }
     private KafkaConsumer consumer;
     private Map<TopicPartition, OffsetAndMetadata> currentOffsets = new ConcurrentHashMap<>();//用于跟踪偏移量的map

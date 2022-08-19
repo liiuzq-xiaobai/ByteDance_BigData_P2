@@ -16,6 +16,9 @@ import java.util.concurrent.TimeUnit;
 
 //用于map等算子逻辑
 public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
+	 public OneInputStreamTask(){
+	        super("MAPPER");
+	}
 
     public KeySelector<StreamElement,String> keySelector;
     private Watermark systemWatermark;

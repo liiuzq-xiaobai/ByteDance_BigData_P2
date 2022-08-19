@@ -21,6 +21,7 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
 
     public SinkStreamTask(SinkBufferPool result) {
         this.result = result;
+        this.setTaskCategory("SINK");
     }
 
     @Override
