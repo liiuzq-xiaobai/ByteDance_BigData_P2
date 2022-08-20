@@ -80,7 +80,6 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
             }
             //如果当前task处于checkpoint状态，
             else {
-                System.out.println(name + "【at checkpoint status】");
                 //如果输入数据为barrier类型，调用处理barrier的方法
                 if (inputElement.isCheckpoint()) {
                     //如果此次的checkpoint与当前task持有的checkpoint不相同，直接丢弃

@@ -89,7 +89,7 @@ public class SourceStreamTask extends StreamTask<String, String> {
                         output.push(watermark);
                     }
                     //TODO source算子手动发送barrier，每4条发一次
-                    TimeUnit.MILLISECONDS.sleep(1000);
+                    TimeUnit.SECONDS.sleep(1);
                     if(counter % 4 == 0){
                         //保存offset，提交consumer的消费记录
                         CheckPointRecord sourceckpoint = new CheckPointRecord("Source",this.getName(),record.offset(),this.getState().toString());

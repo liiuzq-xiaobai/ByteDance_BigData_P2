@@ -133,7 +133,10 @@ public class StreamTask<IN, OUT> extends Thread {
     //当前barrier为空 或 与当前barrier的id相同的话，说明是同一批下发的checkpoint
     public void setBarrierCount(CheckPointBarrier barrier) {
         if (currentBarrier == null || currentBarrier.getId() == barrier.getId()) {
-            if (currentBarrier == null) currentBarrier = barrier;
+            if (currentBarrier == null){
+                System.out.println(getName() + "【start checkpoint】!!!");
+                currentBarrier = barrier;
+            }
             barrierSet.add(barrier.getTaskId());
         }
 //        if(currentBarrier == null){
