@@ -4,19 +4,41 @@ import record.CheckPointBarrier;
 import record.StreamElement;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SinkBufferPool<T extends StreamElement> extends BufferPool{
-    public void copyExistingBuffer(BufferPool<T> existingBuffer) {
-        this.getList().addAll(existingBuffer.getList());
-    }
-    public boolean isCheckpointExist() {
-        int poolSize = this.getList().size();
-        //有可能在读到数据之前读到checkpoint，此时result中没有元素（读到的checkpoint还没放进去）
-        if (poolSize == 0) return false;
-        //判断result最后一个元素是不是checkpoint
-        StreamElement element = (StreamElement) this.getList().get(poolSize - 1);
-        return element.isCheckpoint();
+    protected int checkpointCount = 0;
+    public int copyExistingBuffer(BufferPool<T> existingBuffer) {
+        checkpointCount++;
+        int count = 0;
+        List<? extends StreamElement> list = existingBuffer.getList();
+        for (int i = 0; i < list.size(); i++) {
+            StreamElement element = list.get(i);
+            if (element.isCheckpoint()) {
+                this.getList().add(element);
+                count++;
+                break;
+            }
+            this.getList().add(element);
+            count++;
+        }
+        return count;
     }
 
+    public boolean isCheckpointExist(int checkpointID) {
+        for (int i = 0; i < this.getList().size(); i++) {
+            StreamElement element = (StreamElement) this.getList().get(i);
+            if (element.isCheckpoint()) {
+                return checkpointID == element.asCheckpoint().getCheckpointId();
+            }
+        }
+        return false;
+    }
+    public void addCheckpoint() {
+        checkpointCount++;
+    }
 
+    public int getCheckpointCount() {
+        return checkpointCount;
+    }
 }

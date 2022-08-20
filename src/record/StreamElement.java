@@ -9,6 +9,16 @@ public class StreamElement {
 
     protected String taskId;
 
+    private int checkpointId;
+
+    public int getCheckpointId() {
+        return checkpointId;
+    }
+
+    public void setCheckpointId(int checkpointId) {
+        this.checkpointId = checkpointId;
+    }
+
     public StreamElement(){
     }
     public final boolean isRecord() {
@@ -41,4 +51,5 @@ public class StreamElement {
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
+
 }

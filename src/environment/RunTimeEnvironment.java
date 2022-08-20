@@ -45,7 +45,7 @@ public class RunTimeEnvironment extends Thread{
     List<StreamTask<Tuple2<String, Integer>, Tuple2<String, Integer>>> reduceTaskList = new ArrayList<>();
     
     BufferPool<StreamElement> sourceBuffer;
-    SinkBufferPool result;
+	List<SinkBufferPool> result;
     BufferPool<StreamElement> sinkBuffer;
     InputChannel<StreamElement> sinkInput;
     
@@ -184,7 +184,7 @@ public class RunTimeEnvironment extends Thread{
             
     	}else if(type.equals("SINK")) {
     		//TODO
-    		SinkStreamTask<Tuple2<String, Integer>> sinkTask = new SinkStreamTask<>(result);
+    		SinkStreamTask<Tuple2<String, Integer>> sinkTask = new SinkStreamTask<>(result, reduceTasks.size());
     		sinkTask.setOutput(sinkBuffer);
     		sinkTask.setInput(sinkInput);
     		sinkTask.name("Restored Sink");
@@ -283,7 +283,7 @@ public class RunTimeEnvironment extends Thread{
 	/**
 	 * @param result the result to set
 	 */
-	public void setResult(SinkBufferPool result) {
+	public void setResult(List<SinkBufferPool> result) {
 		this.result = result;
 	}
 
