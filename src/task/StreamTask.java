@@ -11,7 +11,9 @@ import record.StreamRecord;
 import record.Watermark;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author kevin.zeng
@@ -51,8 +53,8 @@ public class StreamTask<IN, OUT> extends Thread {
     //task上游的节点个数，用于barrier对齐
     protected int inputParrellism;
 
-    //记录task收到的barrier数量
-    protected int barrierCount = 0;
+    //记录task已收到的barrier所属task的id
+    protected Set<String> barrierSet;
 
     //task当前持有的barrier
     protected CheckPointBarrier currentBarrier;
@@ -61,10 +63,12 @@ public class StreamTask<IN, OUT> extends Thread {
     protected List<StreamElement> checkpointBuffer;
 
     public StreamTask() {
+        barrierSet = new HashSet<>();
         checkpointBuffer = new ArrayList<>();
     }
 
     public StreamTask(String taskCategory) {
+        barrierSet = new HashSet<>();
         checkpointBuffer = new ArrayList<>();
         this.taskCategory = taskCategory;
     }
@@ -113,30 +117,36 @@ public class StreamTask<IN, OUT> extends Thread {
 
     //判断当前task的barrier是否到齐
     public boolean isBarrierAligned() {
-        if(barrierCount == inputParrellism){
-            barrierCount = 0;
+        if (barrierSet.size() == inputParrellism) {
+            //如果到齐，清空set
+            barrierSet.clear();
             return true;
         }
         return false;
     }
 
     //判断当前task是否持有barrier
-    public boolean isCheckpointExists(){
-        return barrierCount != 0;
+    public boolean isCheckpointExists() {
+        return !barrierSet.isEmpty();
     }
 
-    //当前barrier为空 或 与当前barrier的id相同的话，barrier计数加1
-    public void setBarrierCount(CheckPointBarrier barrier){
-        if (currentBarrier == null || currentBarrier.equals(barrier)) {
+    //当前barrier为空 或 与当前barrier的id相同的话，说明是同一批下发的checkpoint
+    public void setBarrierCount(CheckPointBarrier barrier) {
+        if (currentBarrier == null || currentBarrier.getId() == barrier.getId()) {
             if (currentBarrier == null) currentBarrier = barrier;
-            barrierCount++;
+            barrierSet.add(barrier.getTaskId());
         }
+//        if(currentBarrier == null){
+//            currentBarrier = barrier;
+//        }
+        barrierSet.add(barrier.getTaskId());
+        System.out.println(getName() + "===update barrier set===" + barrierSet);
     }
 
     //当barrier到达时，task的处理逻辑
     public void processBarrier(CheckPointBarrier barrier) {
         setBarrierCount(barrier);
-        //TODO 等待所有barrier全部到齐，才能执行snapshot
+        // 等待所有barrier全部到齐，才能执行snapshot
         if (isBarrierAligned()) {
             System.out.println(getName() + "【checkpoint aligned!!】");
             boolean isChecked = mainOperator.snapshotState();
@@ -148,30 +158,30 @@ public class StreamTask<IN, OUT> extends Thread {
             //将缓存的数据发向下游(缓存数据只会有record和watermark两种类型)
             emitCheckpointBuffer();
             //将对齐后的barrier下发(每个算子只会下发1个barrier，但可能会接收多个barrier)
+            //真正下发时将barrier的taskid改为当前task的id
             output.push(barrier);
             //当前持有的barrier置空
             currentBarrier = null;
-            barrierCount = 0;
         }
     }
 
     //数据暂存缓冲池的逻辑
-    public void temporaryStorage(StreamElement element){
+    public void temporaryStorage(StreamElement element) {
         System.out.println(getName() + "【cache input data for checkpoint】");
         this.checkpointBuffer.add(element);
     }
 
     //barrier对齐后将所有缓冲的数据进行处理，并推向下游
-    public void emitCheckpointBuffer(){
-        System.out.println(getName() + "【处理checkpoint缓冲的数据】"+this.checkpointBuffer.size());
+    public void emitCheckpointBuffer() {
+        System.out.println(getName() + "【处理checkpoint缓冲的数据】" + this.checkpointBuffer.size());
         System.out.println(this.checkpointBuffer);
-        for(StreamElement element : checkpointBuffer){
-            if(element.isRecord()){
+        for (StreamElement element : checkpointBuffer) {
+            if (element.isRecord()) {
                 StreamRecord<IN> record = element.asRecord();
                 OUT outputValue = mainOperator.processElement(record);
-                StreamRecord<OUT> outputData = new StreamRecord<>(outputValue,record.getTimestamp());
+                StreamRecord<OUT> outputData = new StreamRecord<>(outputValue, record.getTimestamp());
                 output.push(outputData);
-            }else if(element.isWatermark()){
+            } else if (element.isWatermark()) {
                 output.push(element.asWatermark());
             }
         }

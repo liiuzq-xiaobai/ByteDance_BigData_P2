@@ -6,6 +6,11 @@ package record;
  * @create 2022-08-13
  */
 public class StreamElement {
+
+    protected String taskId;
+
+    public StreamElement(){
+    }
     public final boolean isRecord() {
         return getClass() == StreamRecord.class;
     }
@@ -27,5 +32,13 @@ public class StreamElement {
     }
     public final CheckPointBarrier asCheckpoint() {
         return (CheckPointBarrier) this;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 }

@@ -11,6 +11,7 @@ public class Watermark extends StreamElement {
     private final long timestamp;
 
     public Watermark(long timestamp) {
+        super();
         this.timestamp = timestamp;
     }
 
@@ -22,8 +23,10 @@ public class Watermark extends StreamElement {
     public String toString() {
         return "Watermark{" +
                 "timestamp=" + timestamp +
+                ", taskId='" + taskId + '\'' +
                 '}';
     }
+
     public long getTimestamp() {
         return timestamp;
     }

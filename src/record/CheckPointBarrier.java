@@ -12,6 +12,7 @@ public class CheckPointBarrier extends StreamElement {
     private static int idCounter=0;
 
     public CheckPointBarrier(){
+        super();
         assignId();
     }
 
@@ -19,10 +20,15 @@ public class CheckPointBarrier extends StreamElement {
         this.id = idCounter++;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "CheckPointBarrier{" +
                 "id=" + id +
+                ", taskId='" + taskId + '\'' +
                 '}';
     }
 
@@ -38,6 +44,10 @@ public class CheckPointBarrier extends StreamElement {
 
     @Override
     public int hashCode() {
+        return id;
+    }
+
+    public int getId() {
         return id;
     }
 }

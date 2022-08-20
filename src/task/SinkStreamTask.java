@@ -22,6 +22,7 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
         this.setTaskCategory("SINK");
     }
 
+    private int counter = 0;
     @Override
     public void run() {
         String name = Thread.currentThread().getName();
@@ -36,9 +37,10 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
                 output.add(inputRecord);
                 System.out.println(name + "***receive record****");
                 System.out.println("result receive Record" + ", right now result size: " + result.getList().size());
+                System.out.println("result receive Checkpoint" + ", right now result: " + result.getList());
                 //当SinkStreamTask拿到checkpoint数据，意味着需要保存缓冲池的数据到result，
             } else if (inputElement.isCheckpoint()) {
-                System.out.println("test: sink 拿到checkpoint");
+                System.out.println("test: sink 拿到checkpoint: "+ ++counter);
                 //如果此时result中已有checkpoint，那么就先将result中的数据写入到output文件
                 if (result.isCheckpointExist()) {
                     System.out.println("result 尝试写入文件开始...");

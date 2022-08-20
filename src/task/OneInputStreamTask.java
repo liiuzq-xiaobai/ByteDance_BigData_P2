@@ -37,13 +37,15 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
             //从InputChannel读取数据
             System.out.println(name + " read from InputChannel");
             StreamElement inputElement = input.take();
+            String taskId = inputElement.getTaskId();
             //如果是record类型数据
             if(inputElement.isRecord()){
                 StreamRecord<IN> inputRecord = inputElement.asRecord();
                 //调用处理逻辑
                 //watermark系统时间检查
                 if(systemWatermark != null && inputRecord.getTimestamp() < systemWatermark.getTimestamp()){
-                    System.out.println(name + "ignore a expired record");
+                    System.out.println(name + "---current time---" + systemWatermark.getTimestamp());
+                    System.out.println(name + "---ignore a expired record!!!---" + inputRecord);
                     continue;
                 }
                 System.out.println(name + " processing ....");
@@ -66,9 +68,6 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
                 CheckPointBarrier barrier = inputElement.asCheckpoint();
                 processBarrier(barrier);
             }
-            /*TODO 如果遇到barrier类型数据，保存其下游Buffer当前的数据内容
-               (范围可以是上一个barrier保存的数据~当前数据)
-            */
         }
     }
 }

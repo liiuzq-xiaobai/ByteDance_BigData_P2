@@ -18,20 +18,24 @@ public class StreamRecord<T> extends StreamElement {
         return "StreamRecord{" +
                 "value=" + value +
                 ", timestamp=" + timestamp +
+                ", taskId='" + taskId + '\'' +
                 '}';
     }
 
     public StreamRecord() {
-    }
-
-    public StreamRecord(T value, long timestamp) {
-        this.value = value;
-        this.timestamp = timestamp;
+        super();
     }
 
     public StreamRecord(T value){
+        super();
         this.value = value;
         this.timestamp = new Date().getTime();
+    }
+
+    public StreamRecord(T value, long timestamp) {
+        super();
+        this.value = value;
+        this.timestamp = timestamp;
     }
     public T getValue() {
         return value;

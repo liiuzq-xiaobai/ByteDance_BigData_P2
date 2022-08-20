@@ -1,9 +1,13 @@
 package io;
 
 
+import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson2.util.BeanUtils;
 import function.KeySelector;
+import record.CheckPointBarrier;
 import record.StreamElement;
 import record.StreamRecord;
+import record.Watermark;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +26,7 @@ public class BufferPool<T extends StreamElement> {
 
     private AtomicInteger offset;
     //一个Buffer的数据可以分发给下游多个InputChannel，可以根据数据的哈希值选择发往哪一个InputChannel
-    private List<InputChannel<T>> channels;
+    private List<InputChannel<StreamElement>> channels;
 
     private boolean isPartition;
 
@@ -54,35 +58,51 @@ public class BufferPool<T extends StreamElement> {
 
     private Random random = new Random();
 
+
+    //在数据发向下游之前，将数据的taskid，也就是来源的task，置为当前task，表示是当前task发送的数据
+    public void setCurrentTaskId(StreamElement element){
+        element.setTaskId(Thread.currentThread().getName());
+    }
+
     //将数据推向下游
     public void push(T data) {
         push(data, null);
     }
 
-    public void makeSnapShot() {
-        //获取当前写入的数据长度
-
-        //创建文件
-
-        //将上一个检查点到当前位置的数据持久化进文件
-
-        //可以使用JSON库处理数据
-
-        //恢复时，恢复到检查点位置
+    //对于checkpoint或者watermark类型这种广播的数据，需要在发送到n个下游算子时，
+    //创建n个与当前接收到的数据相同的数据，不能共享一个数据
+    public StreamElement copyElement(StreamElement element){
+        if(element.isCheckpoint()){
+            CheckPointBarrier copy = new CheckPointBarrier();
+            BeanUtil.copyProperties(element,copy);
+            //id属性不拷贝
+            copy.setId(element.asCheckpoint().getId());
+            return copy;
+        }
+        if(element.isWatermark()){
+            Watermark copy = new Watermark();
+            BeanUtil.copyProperties(element,copy);
+            return copy;
+        }
+        return null;
     }
 
     //强行默认以String类型为key
     //TODO 只为了能实现相同单词到同一个管道，后面可能要改
     //这个push方法针对的是StreamRecord数据
     public void push(T data, KeySelector<StreamElement, String> keySelector) {
+        setCurrentTaskId(data);
         //先加入缓冲池
         add(data);
         int channelIndex;
-        //checkpoint数据，发送到所有管道
+        //checkpoint数据，发送到所有管道当前数据的副本
         if (data.isCheckpoint()) {
             System.out.println(Thread.currentThread().getName() + "****push checkpoint");
-            for (InputChannel<T> channel : channels) {
-                channel.add(data);
+            CheckPointBarrier barrier = data.asCheckpoint();
+            for (InputChannel<StreamElement> channel : channels) {
+                CheckPointBarrier copyBarrier = copyElement(barrier).asCheckpoint();
+                System.out.println(Thread.currentThread().getName() + "发送checkpoint副本===" +copyBarrier);
+                channel.add(copyBarrier);
             }
         } else if (keySelector == null) {
             //没有分区需求，轮询放置
@@ -101,9 +121,11 @@ public class BufferPool<T extends StreamElement> {
                 System.out.println(Thread.currentThread().getName() + "【generate key】 " + key + " " + channelIndex);
                 channels.get(channelIndex).add(data);
             } else if (data.isWatermark()) {
+                Watermark watermark = data.asWatermark();
                 //如果数据是watermark，每个管道都要发
-                for (InputChannel<T> channel : channels) {
-                    channel.add(data);
+                for (InputChannel<StreamElement> channel : channels) {
+                    Watermark copyWatermark = copyElement(watermark).asWatermark();
+                    channel.add(copyWatermark);
                 }
             } else {
                 channelIndex = 0;
@@ -115,7 +137,7 @@ public class BufferPool<T extends StreamElement> {
     }
 
     //为当前数据源绑定一个下游输出
-    public void bindInputChannel(List<InputChannel<T>> channels) {
+    public void bindInputChannel(List<InputChannel<StreamElement>> channels) {
         this.channels = channels;
     }
 }

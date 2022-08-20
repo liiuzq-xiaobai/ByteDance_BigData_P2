@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
  * @create 2022-08-12
  */
 public class SourceStreamTask extends StreamTask<String, String> {
-    static final String TOPIC = "zbw_test";
-    static final String GROUP = "zbw_test_group";
+    static final String TOPIC = "zbw_test2";
+    static final String GROUP = "zbw_test_group2";
     int counter=0;
     public SourceStreamTask(){
         super("SOURCE");
@@ -100,8 +100,6 @@ public class SourceStreamTask extends StreamTask<String, String> {
                         CheckPointBarrier barrier = new CheckPointBarrier();
                         output.push(barrier);
                     }
-
-
                 }
             }
         }catch(Exception e) {
