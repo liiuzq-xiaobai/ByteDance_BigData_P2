@@ -173,8 +173,8 @@ public class TestPartition {
         //连接reduce和sink算子
 
         //为sink算子创建识别到checkpoint后保存数据的容器
-        SinkBufferPool result = new SinkBufferPool();
-        SinkStreamTask<Tuple2<String, Integer>> sinkTask = new SinkStreamTask<>(result);
+        List<SinkBufferPool> result = new ArrayList<>();
+        SinkStreamTask<Tuple2<String, Integer>> sinkTask = new SinkStreamTask<>(result, reduceParrellism);
         //为sink算子绑定下游输出Buffer
         BufferPool<StreamElement> sinkBuffer = new BufferPool<>();
         sinkTask.setOutput(sinkBuffer);

@@ -20,6 +20,7 @@ import java.util.List;
 public class SinkStreamTask<IN> extends StreamTask<IN, String> {
     public List<SinkBufferPool> result;
     public SinkBufferPool[] bufferPoolForEachTask;
+    int counter = 0;
 
     public SinkStreamTask(List<SinkBufferPool> result, int inputParallelism) {
         this.result = result;
@@ -51,7 +52,7 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
                 //存进相应分支的缓冲池中
                 bufferPool.add(inputRecord);
             } else if (inputElement.isCheckpoint()) {
-                System.out.println("test: sink 拿到checkpoint");
+                System.out.println("test: sink 拿到checkpoint: " + ++counter);
                 CheckPointBarrier checkpoint = inputElement.asCheckpoint();
                 bufferPool.add(inputElement);
                 //遍历result(动态表)所有sinkBufferPool判断result中有没有一个sinkBufferPool有该checkpoint
