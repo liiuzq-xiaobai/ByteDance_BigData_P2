@@ -68,14 +68,11 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
                 }
                 if (isCheckpointExist) {
                     //找到对应的sinkBufferPool，把 该分支buffer里checkpoint前的record数据 + 该checkpoint 全放进该sinkBufferPool里面
-                    int count = result.get(index).copyExistingBuffer(bufferPool);
-                    for (int i = 0; i < count; i++) {
-                        bufferPool.getList().remove(0);
-                    }
+                    result.get(index).copyExistingBuffer(bufferPool);
+                    bufferPool.getList().clear();
                     //判断result中最前的sinkBufferPool里面已经有多少个checkpoint
                     //如果checkpoint已经够了，那么就把该sinkBufferPool的数据写进文件
-                    //再次判断result中最前的sinkBufferPool里面已经有多少个checkpoint，直到result中最前的sinkBufferPool里的checkpoint不够
-                    while (!result.isEmpty() && result.get(0).getCheckpointCount() == inputParrellism) {
+                    if (result.get(0).getCheckpointCount() == inputParrellism) {
                         List<? extends StreamElement> list = result.get(0).getList();
                         for (int i = 0; i < list.size(); i++) {
                             StreamElement input = (StreamElement) list.get(i);
@@ -89,7 +86,7 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
                                     e.printStackTrace();
                                 }
                                 System.out.println(name + " 【print value】" + value);
-                            } else if (input.isCheckpoint() && i == list.size() - 1) {
+                            } else if (i == list.size() - 1 && input.isCheckpoint()) {
                                 result.remove(0);
                             }
                         }
@@ -97,10 +94,11 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
                     //如果没有，在result中新建一个sinkBufferPool(新一批次的数据)，把 该分支buffer里checkpoint前的record数据 + 该checkpoint 全放进result里面（此时result有checkpoint标记有效批次）
                 } else {
                     result.add(new SinkBufferPool());
-                    int count = result.get(result.size() - 1).copyExistingBuffer(bufferPool);
-                    for (int i = 0; i < count; i++) {
-                        bufferPool.getList().remove(0);
-                    }
+                    result.get(result.size() - 1).copyExistingBuffer(bufferPool);
+//                    for (int i = 0; i < count; i++) {
+//                        bufferPool.getList().remove(0);
+//                    }
+                    bufferPool.getList().clear();
                 }
 
             }
