@@ -158,11 +158,12 @@ public class StreamTask<IN, OUT> extends Thread {
             //暂时不测试恢复
 //            int i = new Random().nextInt(3);
 //            if (i == 2) mainOperator.recoverState();
-            //将缓存的数据发向下游(缓存数据只会有record和watermark两种类型)
-            emitCheckpointBuffer();
             //将对齐后的barrier下发(每个算子只会下发1个barrier，但可能会接收多个barrier)
             //真正下发时将barrier的taskid改为当前task的id
             output.push(barrier);
+            //将缓存的数据处理后发向下游(缓存数据只会有record和watermark两种类型)
+            //缓存的数据都是在此次checkpoint之后到达的！！！
+            emitCheckpointBuffer();
             //当前持有的barrier置空
             currentBarrier = null;
         }
