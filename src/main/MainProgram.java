@@ -188,29 +188,14 @@ public class MainProgram {
             environment.addTask(reduceTask);
         }
 
-////      以前的
-//        //连接reduce和sink算子
-//        SinkStreamTask<Tuple2<String, Integer>> sinkTask = new SinkStreamTask<>();
-//        //task命名
-//        sinkTask.name("Sink");
-//        //创建输入管道
-//        InputChannel<StreamElement> sinkInput = new InputChannel<>();
-//        sinkTask.setInput(sinkInput);
-//        //为sink的inputChannel绑定数据源buffer
-//        sinkInput.bindProviderBuffer(reduceBuffer);
-
         //连接reduce和sink算子
 
         //为sink算子创建识别到checkpoint后保存数据的容器
         List<SinkBufferPool> result = new ArrayList<>();
         environment.setResult(result);
         SinkStreamTask<Tuple2<String, Integer>> sinkTask = new SinkStreamTask<>(result, reduceParrellism);
-        //为sink算子绑定下游输出Buffer
-        /*
-        BufferPool<StreamElement> sinkBuffer = new BufferPool<>();
-        sinkTask.setOutput(sinkBuffer);
-        environment.setSinkBuffer(sinkBuffer);
-        */
+        //设置时间窗口大小为30秒
+        sinkTask.setDuration(30);
         //task命名
         sinkTask.name("Sink");
         //创建输入管道

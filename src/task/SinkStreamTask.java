@@ -1,14 +1,18 @@
 package task;
 
-import com.sun.xml.internal.bind.v2.TODO;
-import io.BufferPool;
 import io.SinkBufferPool;
+
 import record.CheckPointBarrier;
 import record.StreamElement;
 import record.StreamRecord;
 import utils.SinkUtils;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 
@@ -21,7 +25,11 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
     public List<SinkBufferPool> result;
     public SinkBufferPool[] bufferPoolForEachTask;
     int counter = 0;
-
+    private long firstTime = System.currentTimeMillis();
+    private Timestamp startTime;
+    private Timestamp endTime;
+    //时间窗口持续时间，单位（秒）
+    private int duration;
     public SinkStreamTask(List<SinkBufferPool> result, int inputParallelism) {
         this.result = result;
         this.setTaskCategory("SINK");
@@ -30,12 +38,31 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
         for (int i = 0; i < inputParallelism; i++) {
             bufferPoolForEachTask[i] = new SinkBufferPool();
         }
+        //默认时间窗口30秒
+        this.duration = 30;
+        this.startTime = new Timestamp(firstTime);
+        this.endTime = new Timestamp(startTime.getTime() + duration * 1000);
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 
     @Override
     public void run() {
+        System.out.println("sink开始工作");
         String name = Thread.currentThread().getName();
         while (true) {
+            //sink一直在判断现在的时间有没有超过目前的时间窗口
+            if (startTime.getTime() == firstTime) {
+                SinkUtils.writeTimestamp(startTime, endTime);
+                System.out.println("完成第一次时间写入");
+                startTime.setTime(System.currentTimeMillis());
+            } else if (System.currentTimeMillis() > endTime.getTime()) {
+                startTime.setTime(endTime.getTime());
+                endTime.setTime(startTime.getTime() + duration * 1000);
+                SinkUtils.writeTimestamp(startTime, endTime);
+            }
             //从InputChannel读取数据
             StreamElement inputElement = this.input.take();
             //判断数据来自哪个task
@@ -49,6 +76,8 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
             if (inputElement.isRecord()) {
                 System.out.println("test: sink 拿到record");
                 StreamRecord inputRecord = inputElement.asRecord();
+                //record的事件事件
+                inputRecord.getTimestamp();
                 //存进相应分支的缓冲池中
                 bufferPool.add(inputRecord);
             } else if (inputElement.isCheckpoint()) {
