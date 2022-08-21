@@ -1,14 +1,11 @@
 package environment;
 
-import task.StreamTask;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author kevin.zeng
- * @description
+ * @description 提供给用户的运行环境
  * @create 2022-08-12
  */
 public class StreamExecutionEnvironment {

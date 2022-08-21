@@ -21,7 +21,7 @@ import record.Tuple2;
 
 /**
  * @author kevin.zeng
- * @description 全局运行环境
+ * @description 系统内部的全局运行环境
  * @create 2022-08-16
  */
 public class RunTimeEnvironment extends Thread{
