@@ -126,9 +126,6 @@ public class SinkStreamTask<IN> extends StreamTask<IN, String> {
                 } else {
                     result.add(new SinkBufferPool());
                     result.get(result.size() - 1).copyExistingBuffer(bufferPool);
-//                    for (int i = 0; i < count; i++) {
-//                        bufferPool.getList().remove(0);
-//                    }
                     bufferPool.getList().clear();
                 }
 

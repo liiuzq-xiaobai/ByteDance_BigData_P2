@@ -24,11 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BufferPool<T extends StreamElement> {
     private List<T> list;
 
-    private AtomicInteger offset;
     //一个Buffer的数据可以分发给下游多个InputChannel，可以根据数据的哈希值选择发往哪一个InputChannel
     private List<InputChannel<StreamElement>> channels;
-
-    private boolean isPartition;
 
     private int index = 0;
     public List<T> getList() {
@@ -37,27 +34,12 @@ public class BufferPool<T extends StreamElement> {
 
     public BufferPool() {
         list = new CopyOnWriteArrayList<>();
-        offset = new AtomicInteger(list.size());
         channels = new ArrayList<>();
-        isPartition = false;
-    }
-
-    public void enablePartition() {
-        isPartition = true;
     }
 
     public void add(T data) {
         list.add(data);
     }
-
-    public T take(int index) {
-        //防止数组越界
-        if (index >= list.size()) return null;
-        return list.get(index);
-    }
-
-    private Random random = new Random();
-
 
     //在数据发向下游之前，将数据的taskid，也就是来源的task，置为当前task，表示是当前task发送的数据
     public void setCurrentTaskId(StreamElement element){
@@ -87,9 +69,6 @@ public class BufferPool<T extends StreamElement> {
         return null;
     }
 
-    //强行默认以String类型为key
-    //TODO 只为了能实现相同单词到同一个管道，后面可能要改
-    //这个push方法针对的是StreamRecord数据
     public void push(T data, KeySelector<StreamElement, String> keySelector) {
         setCurrentTaskId(data);
         //先加入缓冲池

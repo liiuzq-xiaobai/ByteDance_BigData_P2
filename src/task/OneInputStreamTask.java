@@ -20,15 +20,11 @@ public class OneInputStreamTask<IN,OUT> extends StreamTask<IN,OUT> {
 	        super("MAPPER");
 	}
 
-    public KeySelector<StreamElement,String> keySelector;
+    private KeySelector<StreamElement,String> keySelector;
     private Watermark systemWatermark;
     public void setKeySelector(KeySelector<StreamElement, String> keySelector) {
         this.keySelector = keySelector;
     }
-
-//    public void setKeySelector(KeySelector<StreamRecord<OUT>, String> keySelector) {
-//        this.keySelector = keySelector;
-//    }
 
     @Override
     public void run(){

@@ -74,8 +74,6 @@ public class SourceStreamTask extends StreamTask<String, String> {
                 for (ConsumerRecord<String, String> record:records) {
                     counter++;
                     String obj = record.value();
-                    //每隔1s向下游传递一条数据
-//                    TimeUnit.MILLISECONDS.sleep(1000);
                     StreamRecord<String> streamRecord = new StreamRecord<>(obj);
                     System.out.println(name + " produce: " + obj);
                     //放入下游的Buffer中，并将数据推向下游算子的输入管道
@@ -88,7 +86,6 @@ public class SourceStreamTask extends StreamTask<String, String> {
                         Watermark watermark = new Watermark();
                         output.push(watermark);
                     }
-                    //TODO source算子手动发送barrier，每4条发一次
                     TimeUnit.SECONDS.sleep(1);
                     if(counter % 4 == 0){
                         //保存offset，提交consumer的消费记录

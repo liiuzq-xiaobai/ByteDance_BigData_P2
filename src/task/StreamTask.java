@@ -35,9 +35,6 @@ public class StreamTask<IN, OUT> extends Thread {
     //task持有一个上游输入管道
     protected InputChannel<StreamElement> input;
 
-    //一个task可以接收多个InputChannel发送到数据
-    protected List<InputChannel<StreamElement>> inputs;
-
     //task执行算子逻辑
     protected StreamOperator<IN, OUT> mainOperator;
 
@@ -148,9 +145,6 @@ public class StreamTask<IN, OUT> extends Thread {
             boolean isChecked = mainOperator.snapshotState();
             //如果成功，向全局环境发送ACK
             if (isChecked) sendAck();
-            //暂时不测试恢复
-//            int i = new Random().nextInt(3);
-//            if (i == 2) mainOperator.recoverState();
             //将对齐后的barrier下发(每个算子只会下发1个barrier，但可能会接收多个barrier)
             //真正下发时将barrier的taskid改为当前task的id
             output.push(barrier);

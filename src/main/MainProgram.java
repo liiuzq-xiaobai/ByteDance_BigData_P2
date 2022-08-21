@@ -98,8 +98,6 @@ public class MainProgram {
         List<BufferPool<StreamElement>> mapBuffer = new ArrayList<>();
         for (int i = 0; i < mapParrellism; i++) {
             BufferPool<StreamElement> pool = new BufferPool<>();
-            //map算子的bufferPool要启用分区，以便进行reduce计算
-            pool.enablePartition();
             mapBuffer.add(pool);
         }
         //根据下游的并行度设置InputChannel，这里下游是map算子

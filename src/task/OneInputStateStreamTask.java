@@ -24,16 +24,11 @@ public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
         while (true) {
             //从InputChannel读取数据
             System.out.println(name + " read from InputChannel and processing");
-            StreamRecord<IN> outputData = null;
-
-            //TODO 指定时间窗口，获取系统时间，如果小于窗口的maxTimeStamp，就继续计算
-
+            StreamRecord<IN> outputData;
             StreamElement inputElement = input.take();
             String taskId = inputElement.getTaskId();
             System.out.println(name + "receive " + taskId);
             //将该数据表明是由哪个reduce分支向下游sink发送的，方便后期sink算子判断
-            //这一步在bufferpool的push里面做了
-//            inputElement.setTaskId(name);
             //如果当前task没有处于checkpoint状态，向下游发送处理过后的数据
             if (!isCheckpointExists()) {
                 System.out.println(name + "***not in checkpoint status***");

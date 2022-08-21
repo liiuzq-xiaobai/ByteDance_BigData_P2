@@ -38,29 +38,6 @@ public class KafkaSender extends Thread{
 		KafkaProducer<String, String> producer =
 				new KafkaProducer<>(props);
 
-		Random rand1 = new Random();
-		//发送10000个单词
-//		for(int i=0;i<100;i++) {
-//			String[] buffer = new String[count];
-//			for (int j = 0; j < count; j++) {
-//				buffer[j]=words[rand1.nextInt(words.length)];
-//			}
-//			String record = arrayToStr(buffer);
-//			String record = words[rand1.nextInt(words.length)];
-//			char letter = 'A';
-//			int nextChar = rand1.nextInt(26);
-//			byte[] payload = (i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime()).getBytes();
-			//System.out.println("Send message: " + i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime());
-//			ProducerRecord<String, byte[]> record = new ProducerRecord<String, byte[]>(prop.getProperty("kafka.topic.name"),payload);
-//			producer.send(new ProducerRecord<>(topic,record));
-			//System.out.println("Send message: " + i + " " + Character.toString((char)(letter+nextChar)) + " " + new Date().getTime());
-			//int timeBetween = rand2.nextInt(5)+1;
-//			try {
-//				Thread.sleep(5000);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-//		}
 		//发送固定的几行单词，用于测试程序正确性
 		BufferedReader reader = null;
 		try {
@@ -80,16 +57,6 @@ public class KafkaSender extends Thread{
 		}
 
 		producer.close();
-	}
-
-	private String arrayToStr(String[] str){
-		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < str.length-1; i++) {
-			builder.append(str[i]).append(" ");
-
-		}
-		builder.append(str[str.length-1]);
-		return builder.toString();
 	}
 
 	public static void main(String[] args) throws InterruptedException{
