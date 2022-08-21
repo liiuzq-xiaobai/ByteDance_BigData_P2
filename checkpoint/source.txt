@@ -1,1 +1,0 @@
-CheckPointRecord{operator='Source', taskId='Source', bufferPoolId='null', inputChannelId='null', offset=2401, taskstatus='RUNNABLE'}
