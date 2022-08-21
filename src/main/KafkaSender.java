@@ -55,7 +55,7 @@ public class KafkaSender extends Thread{
 		producer.close();
 	}
 
-	public static void main(String[] args) throws InterruptedException{
+	public static void main(String[] args) {
 		KafkaSender sender = new KafkaSender();
 		sender.start();
 	}

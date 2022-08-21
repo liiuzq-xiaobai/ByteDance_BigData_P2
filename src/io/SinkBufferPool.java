@@ -1,11 +1,8 @@
 package io;
 
-import record.CheckPointBarrier;
 import record.StreamElement;
 
-import java.util.ArrayList;
-import java.util.List;
-
+//Sink算子输出使用的缓冲池
 public class SinkBufferPool<T extends StreamElement> extends BufferPool{
     protected int checkpointCount = 0;
     public void copyExistingBuffer(BufferPool<T> existingBuffer) {
