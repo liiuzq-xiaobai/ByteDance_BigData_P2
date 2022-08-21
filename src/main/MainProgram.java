@@ -68,7 +68,6 @@ public class MainProgram {
         //以下为DAG图构造过程
 
         //****连接source和map算子
-        //1个source 2个map
         SourceStreamTask consumer = new SourceStreamTask();
         consumer.name("Source");
 
