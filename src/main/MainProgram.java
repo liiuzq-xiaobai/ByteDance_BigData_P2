@@ -1,7 +1,7 @@
 package main;
 
-import common.KeySelectorWrapper;
-import common.MapKeyedState;
+import utils.KeySelectorWrapper;
+import state.MapKeyedState;
 import environment.RunTimeEnvironment;
 import function.KeySelector;
 import function.MapFunction;

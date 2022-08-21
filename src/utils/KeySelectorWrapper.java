@@ -1,4 +1,4 @@
-package common;
+package utils;
 
 import function.KeySelector;
 import record.StreamElement;

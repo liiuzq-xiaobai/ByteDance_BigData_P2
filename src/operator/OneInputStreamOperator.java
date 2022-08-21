@@ -1,6 +1,6 @@
 package operator;
 
-import common.KeyedState;
+import state.KeyedState;
 import function.Function;
 import function.KeySelector;
 

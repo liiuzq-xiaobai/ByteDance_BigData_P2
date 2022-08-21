@@ -1,6 +1,6 @@
 package task;
 
-import common.KeyedState;
+import state.KeyedState;
 import environment.RunTimeEnvironment;
 import io.BufferPool;
 import io.InputChannel;
