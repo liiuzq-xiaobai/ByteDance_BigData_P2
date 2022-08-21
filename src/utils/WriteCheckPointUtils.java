@@ -10,6 +10,7 @@ import java.io.IOException;
  * @author: liuzq
  * @date: 2022/8/17
  */
+//checkpoint状态快照写入工具类
 public class WriteCheckPointUtils {
     static BufferedWriter writer;
     public static void writeCheckPointFile(String path, CheckPointRecord record){

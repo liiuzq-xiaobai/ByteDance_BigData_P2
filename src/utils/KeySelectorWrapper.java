@@ -9,6 +9,7 @@ import record.StreamRecord;
  * @description 将KeySelector<T,String>转换为KeySelector<StreamElement,String>
  * @create 2022-08-13
  */
+//KeySelector转换工具类
 public class KeySelectorWrapper<T> {
 
     public KeySelector<StreamElement,String> convert(KeySelector<T,String> keySelector) {

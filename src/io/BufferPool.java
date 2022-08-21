@@ -2,7 +2,6 @@ package io;
 
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.fastjson2.util.BeanUtils;
 import function.KeySelector;
 import record.CheckPointBarrier;
 import record.StreamElement;
@@ -11,9 +10,7 @@ import record.Watermark;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author kevin.zeng

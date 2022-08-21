@@ -8,9 +8,9 @@ import java.util.Date;
  * @create 2022-08-12
  */
 public class StreamRecord<T> extends StreamElement {
-
+    //数据值
     private T value;
-
+    //时间戳
     private long timestamp;
 
     @Override

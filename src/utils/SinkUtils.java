@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
  * @description
  * @create 2022-08-14
  */
+//Sink算子写入文件工具类
 public class SinkUtils {
     static BufferedWriter writer;
     public static void writeIntoFile(String path, StreamRecord<?> data) throws IOException {
