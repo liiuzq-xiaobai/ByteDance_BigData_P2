@@ -14,7 +14,7 @@ import task.StreamTask;
 public abstract class StreamOperator<IN,OUT> {
 
     protected StreamTask<?,?> container;
-
+    //算子处理输入数据的逻辑
     public abstract OUT processElement(StreamRecord<IN> record);
 
     //算子存储状态快照的逻辑

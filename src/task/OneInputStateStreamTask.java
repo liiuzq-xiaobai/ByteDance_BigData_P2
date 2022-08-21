@@ -3,7 +3,6 @@ package task;
 import record.CheckPointBarrier;
 import record.StreamElement;
 import record.StreamRecord;
-import window.WindowAssigner;
 
 import java.util.concurrent.TimeUnit;
 
@@ -14,8 +13,6 @@ import java.util.concurrent.TimeUnit;
  */
 //处理带状态的算子逻辑，如reduce
 public class OneInputStateStreamTask<IN> extends StreamTask<IN, IN> {
-
-    WindowAssigner<StreamElement> windowAssigner;
 
     public OneInputStateStreamTask() {
         super("REDUCER");

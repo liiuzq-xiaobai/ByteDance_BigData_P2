@@ -49,6 +49,7 @@ public class MainProgram {
         String keySelectorClassName = String.valueOf(props.get("keySelector.class"));
         String mapFunctionClassName = String.valueOf(props.get("mapFunction.class"));
         String reduceFunctionClassName = String.valueOf(props.get("reduceFunction.class"));
+        int duration = Integer.valueOf(String.valueOf(props.get("window.size")));
 
         //反射创建key选择器
         Class keySelectorClass = Class.forName(CLIENT_CLASS_PATH + keySelectorClassName);
@@ -189,13 +190,12 @@ public class MainProgram {
         }
 
         //连接reduce和sink算子
-
         //为sink算子创建识别到checkpoint后保存数据的容器
         List<SinkBufferPool> result = new ArrayList<>();
         environment.setResult(result);
         SinkStreamTask<Tuple2<String, Integer>> sinkTask = new SinkStreamTask<>(result, reduceParrellism);
-        //设置时间窗口大小为30秒
-        sinkTask.setDuration(30);
+        //设置时间窗口大小
+        sinkTask.setDuration(duration);
         //task命名
         sinkTask.name("Sink");
         //创建输入管道
@@ -208,10 +208,6 @@ public class MainProgram {
         BufferPool<StreamElement> sinkBufferPool = new BufferPool<>();
         sinkTask.setOutput(sinkBufferPool);
         environment.setSinkBuffer(sinkBufferPool);
-
-        /*TODO 当前数据传输方式为 Buffer push数据 到InputChannel
-                是否需要改成InputChannel 从 上游Buffer拉取数据
-         */
         //为每一个上游buffer绑定输出到下游的channel
         for (int i = 0; i < reduceParrellism; i++) {
             reduceBuffer.get(i).bindInputChannel(Collections.singletonList(sinkInput));
@@ -230,7 +226,7 @@ public class MainProgram {
         for(StreamTask task:reduceTaskList) task.setEnvironment(environment);
 
         //****开始运行
-//        environment.start();
+        environment.start();
         //map算子
         for (int i = 0; i < mapParrellism; i++) {
             mapTaskList.get(i).start();

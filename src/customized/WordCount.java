@@ -9,6 +9,7 @@ import environment.StreamExecutionEnvironment;
  */
 public class WordCount {
     public static void main(String[] args) {
+        //用户创建流式计算运行环境，调用execute方法即可运行程序
         StreamExecutionEnvironment env = new StreamExecutionEnvironment();
         env.execute();
     }

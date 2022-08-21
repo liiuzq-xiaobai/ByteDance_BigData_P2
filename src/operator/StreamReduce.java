@@ -37,7 +37,6 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
 
     @Override
     public T processElement(StreamRecord<T> record) {
-
         T value = record.getValue();
         T newValue;
         String key = keySelector.getKey(value);

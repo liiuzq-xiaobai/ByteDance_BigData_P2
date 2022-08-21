@@ -26,17 +26,13 @@ public class StreamTask<IN, OUT> extends Thread {
     //task属于一个运行环境
     protected RunTimeEnvironment environment;
 
-    //当前task生产的数据放到Buffer中
-//    protected BufferPool<StreamRecord<OUT>> output;
-
     //当前task所属的状态存储
     protected KeyedState<String, IN> state;
 
+    //task持有一个下游输出缓冲
     protected BufferPool<StreamElement> output;
 
-    //一个task接收一个InputChannel发送的数据
-//    protected InputChannel<StreamRecord<IN>> input;
-
+    //task持有一个上游输入管道
     protected InputChannel<StreamElement> input;
 
     //一个task可以接收多个InputChannel发送到数据
@@ -139,9 +135,6 @@ public class StreamTask<IN, OUT> extends Thread {
             }
             barrierSet.add(barrier.getTaskId());
         }
-//        if(currentBarrier == null){
-//            currentBarrier = barrier;
-//        }
         barrierSet.add(barrier.getTaskId());
         System.out.println(getName() + "===update barrier set===" + barrierSet);
     }
