@@ -36,7 +36,6 @@ public class MainProgram {
     //用户Properties文件路径
     private static final String CLIENT_FILE_PATH = "src" + File.separator + "customized" + File.separator + "config.properties";
 
-    //TODO 相当于execute中的内容
     public static void main(String[] args) throws Exception {
     	//****创建全局运行环境
         RunTimeEnvironment environment = new RunTimeEnvironment();
@@ -66,11 +65,7 @@ public class MainProgram {
         Class reduceFunctionClass = Class.forName(CLIENT_CLASS_PATH + reduceFunctionClassName);
         ReduceFunction<Tuple2<String, Integer>> reduceFunction = (ReduceFunction<Tuple2<String, Integer>>) reduceFunctionClass.newInstance();
 
-        //TODO 以下为DAG图构造过程（此处只用了硬代码）
-
-        /*TODO 为处理Watermark等多种类型数据，
-           BufferPool，InputChannel等数据结构存放类型可能要修改为数据基类StreamElement
-         */
+        //以下为DAG图构造过程
 
         //****连接source和map算子
         //1个source 2个map

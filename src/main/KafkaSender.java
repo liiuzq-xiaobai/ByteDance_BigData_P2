@@ -1,7 +1,6 @@
 package main;
 import java.io.*;
 import java.util.Properties;
-import java.util.Random;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -10,9 +9,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 public class KafkaSender extends Thread{
 		String[] words = new String[]{"apple","banana","peach","watermelon","orange","grape","lemon"};
 		String topic = "zbw_test2";
-		int count = 3; //一次发送几个单词
-	public KafkaSender() {
-	}
 
 	@Override
 	public void run() {
