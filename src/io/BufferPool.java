@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 // T为Buffer内的数据类型
 public class BufferPool<T extends StreamElement> {
+    //使用有序集合存储数据
     private List<T> list;
 
     //一个Buffer的数据可以分发给下游多个InputChannel，可以根据数据的哈希值选择发往哪一个InputChannel

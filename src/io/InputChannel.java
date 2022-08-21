@@ -14,11 +14,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @create 2022-08-12
  */
 public class InputChannel<T extends StreamElement> {
-    //每个InputChannel会接收一个BufferPool提供的数据
+    //每个InputChannel会接收多个BufferPool提供的数据
     private List<BufferPool<T>> provider;
-
-    //记录消费到了BufferPool的哪个位置的数据
-//    private int offset;
 
     //当前管道所属的运行节点
     private ExecutionJobVertex<?,?> vertex;
@@ -33,18 +30,6 @@ public class InputChannel<T extends StreamElement> {
     }
 
     public T take(){
-        //从提供者的buffer中读取数据放到queue中
-        //获取当前buffer数据的偏移量
-//        int offset = vertex.incrAndGetOffset();
-//        T data = provider.take(offset);
-//        if(data != null) {
-//            try {
-//                queue.put(data);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
-
         //从阻塞队列中读数据
         T result = null;
         try {
