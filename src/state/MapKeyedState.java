@@ -13,18 +13,12 @@ import java.util.Map;
  */
 public class MapKeyedState<K,V> implements KeyedState<K,V> {
 
-    final KeySelector<V,K> keySelector;
+    private final KeySelector<V,K> keySelector;
 
-    Map<K,V> map = new HashMap<>();
+    private Map<K,V> map = new HashMap<>();
 
     public MapKeyedState(KeySelector<V, K> keySelector) {
         this.keySelector = keySelector;
-    }
-
-    //返回key值对应的value
-    @Override
-    public V value() {
-        return null;
     }
 
     @Override

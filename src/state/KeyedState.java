@@ -8,16 +8,17 @@ import java.util.Collection;
  * @description
  * @create 2022-08-13
  */
+//算子状态存储
 public interface KeyedState<K,V> {
     //根据key值取value
     V value(K key);
 
-    V value();
-
+    //传入value值更新状态
     void update(V value);
 
+    //更新value值的集合
     Collection<V> get();
 
-    //清空状态中存储的数据
+    //清除状态
     void clear();
 }

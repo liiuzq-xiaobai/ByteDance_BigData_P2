@@ -8,6 +8,7 @@ import java.util.Date;
  * @create 2022-08-13
  */
 public class Watermark extends StreamElement {
+    //时间标识
     private final long timestamp;
 
     public Watermark(long timestamp) {

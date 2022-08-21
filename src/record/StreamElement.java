@@ -5,6 +5,7 @@ package record;
  * @description
  * @create 2022-08-13
  */
+//公共的数据基类
 public class StreamElement {
 
     protected String taskId;

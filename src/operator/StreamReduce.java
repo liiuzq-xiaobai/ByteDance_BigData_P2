@@ -56,13 +56,13 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
         try {
             Collection<T> copyForCheckpoint = copyKeyedState();
             if (!file.exists()) file.createNewFile();
-            writer = new BufferedWriter(new FileWriter(file, true));
+            //写入文件，存储状态快照，每次写入最新的状态
+            writer = new BufferedWriter(new FileWriter(file, false));
             for (T value : copyForCheckpoint) {
                 String str = JSON.toJSONString(value);
                 writer.write(str);
                 writer.newLine();
             }
-            writer.newLine();
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -80,15 +80,13 @@ public class StreamReduce<T> extends OneInputStreamOperator<T, T, ReduceFunction
     public void recoverState() {
         //从指定文件中读取最新一次checkpoint保留的state数据
         BufferedReader reader = null;
-        //先把keyedstate内容全部清空，再从文件恢复
         valueState.clear();
         String name = Thread.currentThread().getName();
         String path = "checkpoint" + File.separator + name + ".txt";
         System.out.println(name + "【recover KeyedState】...");
         try {
+            //读取文件，进行状态恢复
             reader = new BufferedReader(new FileReader(path));
-            //先读取id，完善后可以删去
-            reader.readLine();
             String line = "";
             while ((line = reader.readLine()) != null) {
                 T value = (T) JSONObject.parseObject(line, new TypeReference<Tuple2<String, Integer>>() {
