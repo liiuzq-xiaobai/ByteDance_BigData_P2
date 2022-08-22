@@ -87,6 +87,9 @@ public class SourceStreamTask extends StreamTask<String, String> {
                         output.push(watermark);
                     }
                     TimeUnit.SECONDS.sleep(1);
+                    //每4条数据发送一次checkpointbarrier，
+                    //理论上正确结果为算子每4条数据做一次状态快照
+                    //方便程序运行结果正确性检验
                     if(counter % 4 == 0){
                         //保存offset，提交consumer的消费记录
                         CheckPointRecord sourceckpoint = new CheckPointRecord("Source",this.getName(),record.offset(),this.getState().toString());
