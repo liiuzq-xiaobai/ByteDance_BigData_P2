@@ -1,0 +1,13 @@
+期望的最终结果：
+Tuple2{word=bigdata, count=1}
+Tuple2{word=happy, count=3}
+Tuple2{word=wonderful, count=3}
+Tuple2{word=hello, count=1}
+Tuple2{word=join, count=1}
+Tuple2{word=experience, count=1}
+Tuple2{word=bytedance, count=1}
+Tuple2{word=teammates, count=1}
+Tuple2{word=meet, count=2}
+Tuple2{word=teachers, count=1}
+Tuple2{word=to, count=3}
+Tuple2{word=camp, count=1}

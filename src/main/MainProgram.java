@@ -18,10 +18,7 @@ import task.*;
 
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -238,10 +235,15 @@ public class MainProgram {
         //sink算子
         sinkTask.start();
 
-        TimeUnit.SECONDS.sleep(90);
+        TimeUnit.SECONDS.sleep(60);
 
+        System.out.println("【WordCount】 result: ");
         for (int i = 0; i < reduceParrellism; i++) {
-            System.out.println(Thread.currentThread().getName() + " 【WordCount】 result: " + reducerList.get(i).getValueState().get());
+            System.out.println("Reduce"+i);
+            Collection<Tuple2<String, Integer>> res = reducerList.get(i).getValueState().get();
+            for(Tuple2 tuple2 : res){
+                System.out.println(tuple2);
+            }
         }
     }
 }
