@@ -94,7 +94,7 @@ public class RunTimeEnvironment extends Thread{
     	else if(task.getTaskCategory().equals("SINK")) {
     		this.sinkTasks.add((SinkStreamTask)task);
     	}else {
-    		System.out.println("NO TASK CATEGORY");
+//    		System.out.println("NO TASK CATEGORY");
     	}
     }
     

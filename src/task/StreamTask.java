@@ -132,7 +132,6 @@ public class StreamTask<IN, OUT> extends Thread {
             }
             barrierSet.add(barrier.getTaskId());
         }
-        barrierSet.add(barrier.getTaskId());
         System.out.println(getName() + "===update barrier set===" + barrierSet);
     }
 
