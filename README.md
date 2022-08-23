@@ -1,7 +1,9 @@
 # ByteDance_BigData_P2 ｜ 字节跳动第四届青训营大数据实训项目2
 ### 操作指南
 
-1. 从github链接https://github.com/liiuzq-xiaobai/ByteDance_BigData_P2上拉取项目后，进入src/customized子包。
+1. 从github链接https://github.com/liiuzq-xiaobai/ByteDance_BigData_P2
+
+   拉取项目后，进入src/customized子包。
 
 2. 在customized包下，定义MapFunction, ReduceFunction, KeySelector接口的实现类（类名可自定义），样例分别为
 
