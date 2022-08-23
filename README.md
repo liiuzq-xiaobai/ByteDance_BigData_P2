@@ -1,32 +1,72 @@
 # ByteDance_BigData_P2 ｜ 字节跳动第四届青训营大数据实训项目2
-branch author：郑之恺 kkevin26
+### 操作指南
 
-## 1. Kafka数据发送和接收
-### 1.1 Kafka set up
-- 在Kafka安装目录下run：
-	- bin/zookeeper-server-start.sh config/zookeeper.properties
-	- bin/kafka-server-start.sh config/server.properties
+1. 从github链接https://github.com/liiuzq-xiaobai/ByteDance_BigData_P2上拉取项目后，进入src/customized子包。
 
-- 创建topic和bootstrap server：
-	- bin/kafka-topics.sh --create --topic **TOPIC** --bootstrap-server **localhost:9092**
+2. 在customized包下，定义MapFunction, ReduceFunction, KeySelector接口的实现类（类名可自定义），样例分别为
 
-### 1.2 实现功能
-- KafkaSender.java 可以实现Kafka消息的发送
-	- 目前hardcode为每隔2秒随机发送一个字母
-- KafkaReceiver.java可以实现Kafka消息的接收，并且把收到的Kafka信息转化为一个Object存放在BlockingQueue中
-- Mapper.java （当前是Mapper/Reducer/Sink的集合体，只有最简单功能）
-	- run应修改为abstract handler形式，方便用户自定义
-	- 目前hardcode为将收到的Object存放进一个HashMap中，并统计数量；每隔1分钟print当前HashMap中的数据
-	- 需要考虑不同需求下如何实现，以及用户如何提交HashMap
+   - MapFunction
 
-### 1.3 待开发功能
-- Mapper拆分为Mapper/Reducer/Sink
-- 增加并行度，在多并行下如何shuffle分散数据
-- 自定义Mapper/Reducer function API
-- shuffle （当前为 单source->单mapper 无shuffle）
-- 故障支持
+   ```java
+   public class Mapper implements MapFunction<String, Tuple2<String, Integer>> {
+       @Override
+       public Tuple2<String, Integer> map(String value) {
+           //...
+       }
+   }
+   ```
+
+   - ReduceFunction
+
+   ```java
+   public class Reducer implements ReduceFunction<Tuple2<String, Integer>> {
+       @Override
+       public Tuple2<String, Integer> reduce(Tuple2<String, Integer> value1, Tuple2<String, Integer> value2) {
+           //...
+       }
+   }
+   ```
+
+   - KeySelector
+
+   ```java
+   public class WordKeySelector implements KeySelector<Tuple2<String,Integer>,String> {
+       @Override
+       public String getKey(Tuple2<String, Integer> value) {
+   		//...
+       }
+   }
+   ```
 
 
-### 1.4 运行方法
-- 按照1.1完成Kafka设置
-- mvn clean install exec:java 运行main
+3. 在config.properties文件下，定义算子的并行度、自定义函数的类名、窗口大小（单位为秒）等信息。样例为
+
+```properties
+#map算子并行度
+map.parrellism=2
+#reduce算子并行度
+reduce.parrellism=2
+#用户定义的KeySelector类名
+keySelector.class=WordKeySelector
+#用户定义的MapFunction类名
+mapFunction.class=Mapper
+#用户定义的ReduceFunction类名
+reduceFunction.class=Reducer
+#窗口大小，单位为s
+window.size=20
+```
+
+4. 好啦，准备工作完成！在customized包下，创建属于你自己的运行主类，然后在main方法中创建流式计算的运行环境StreamExecutionEnvironment，调用运行的环境的execute方法，即可运行wordcount程序！样例为
+
+```java
+public class WordCount {
+    public static void main(String[] args) {
+        //创建流式计算运行环境，调用execute方法即可运行程序
+        StreamExecutionEnvironment env = new StreamExecutionEnvironment();
+        env.execute();
+    }
+}
+```
+
+
+
